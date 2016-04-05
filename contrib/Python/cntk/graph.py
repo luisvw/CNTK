@@ -96,21 +96,6 @@ class ComputationNode(object):
     def __abs__(self):
         return Abs(self)
 
-    def __getitem__(self, so):
-        if so.stop == None:
-            raise ValueError('The stop index has to be provided')
-
-        if isinstance(so, int):
-            return RowSlice(self, so, 1)
-
-        elif isinstance(so, slice):
-            if so.step not in {1, None}:
-                raise ValueError("RowSlice does not support strides")
-
-            start = so.start or 0
-
-            return RowSlice(self, start, so.stop - start)
-
     # TODO more __operators__
 
     def _get_cntk_param_string(self, param_variable_names=None):
@@ -422,7 +407,6 @@ def _get_constant_node(value, **kw):
 
     dims = np.multiply.reduce(cntk_shape)
 
-    # TODO switch to ConstantTensor once it is in the core.bs file
     node = cntk1_ops.ParameterTensor(
         dims=dims,
         learningRateMultiplier=0.0,

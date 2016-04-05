@@ -35,10 +35,6 @@ I = input
     # __abs__
     (abs(C(0)), Abs),
 
-    # __getitem__
-    (C(np.arange(0, 10))[2:5], RowSlice),
-    (C(np.arange(0, 10))[:5], RowSlice),
-
 ])
 def test_overload_types(root_node, expected):
     assert isinstance(root_node, expected)
@@ -130,10 +126,10 @@ def test_is_tensor_list(data, expected):
 def test_loose_coupling():
     from cntk.ops.cntk1 import PastValue
     dh = PastValue(1, 'outnode')
-    out = Times(dh, Constant(2), var_name='outnode')
+    out = Times(dh, ConstantTensor(2, 1), var_name='outnode')
 
     expected = ['v0 = PastValue(1, outnode, timeStep=1, defaultHiddenActivation=0.1)', 
-            'v1 = Constant(2, rows=1, cols=1)',
+            'v1 = ConstantTensor(2, 1)',
             'outnode = Times(v0, v1, outputRank=1)']
 
     description, has_inputs, readers = out.to_config()
