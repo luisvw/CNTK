@@ -6,21 +6,6 @@ import os
 import re
 import sys
 
-# This file is meant to be run as a stand-alone file, which is why relative
-# imports won't work.
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from cntk.utils import CNTK_EXECUTABLE_PATH
-
-if len(sys.argv)==2:
-    CNTKCORE_DEFS = sys.argv[1]
-else:
-    # BrainScript's node definitions are created when a build is triggered so we
-    # should be able to find the file in the path of the cntk exeutable.
-    CNTKCORE_DEFS = os.path.join(
-        os.path.dirname(CNTK_EXECUTABLE_PATH), 'CNTK.core.bs')
-
-print('Using %s'%CNTKCORE_DEFS)
-
 REGEX_STANDARD = re.compile(r'(?P<operator>\w+)\((?P<operands>.*?)\) = .*')
 REGEX_COMPNODE = re.compile(
     r'(?P<operator>\w+)\((?P<operands>.*?)\) = new ComputationNode \[')
@@ -228,13 +213,13 @@ class ElementDivide(ComputationNode):
 """
 
 
-def convert_bs_to_python(bs_fn, py_fn):
+def convert_bs_to_python(bs_fn, pyf):
     # We have to append these at the end to make sure, because the
     # BrainScript file does not keep order.
     alias_ops = []
     inst_ops = []
 
-    with open(py_fn, 'w') as pyf:
+    with pyf:
         pyf.write(OPS_PREAMBLE)
 
         in_computation_node_section = False
@@ -288,10 +273,29 @@ def convert_bs_to_python(bs_fn, py_fn):
             if op.name in OPERATORS_TO_IGNORE:
                 continue
             pyf.write(str(op) + '\n')
-            if op.name == 'ConstantTensor':
-                print(op)
-
-
 
 if __name__ == '__main__':
-    convert_bs_to_python(CNTKCORE_DEFS, "cntk1_ops.py")
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-c", "--cntk", dest="cntkcore_defs",
+            help="CNTK.core.bs file", metavar="FILE")
+    parser.add_option("-o", "--output", dest="output",
+            help="output file, or '-' for stdout", default='-')
+
+    (opts, args) = parser.parse_args()
+
+    if opts.cntkcore_defs:
+        CNTKCORE_DEFS = opts.cntkcore_defs
+    else:
+        CUR_DIR = os.path.dirname(__file__)
+        CNTKCORE_DEFS = os.path.join(CUR_DIR, '..', '..', '..', '..', 'Source',
+                'CNTK', 'BrainScript', 'CNTKCoreLib', 'CNTK.core.bs')
+
+    print('Using %s'%CNTKCORE_DEFS)
+
+    if opts.output == '-':
+        outfile = sys.stdout
+    else:
+        outfile = open(opts.output, "w")
+        
+    convert_bs_to_python(CNTKCORE_DEFS, outfile)
