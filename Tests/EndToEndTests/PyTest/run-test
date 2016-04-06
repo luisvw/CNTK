@@ -1,0 +1,13 @@
+#!/bin/bash
+
+. $TEST_ROOT_DIR/run-test-common
+
+PYAPIDIR=$TEST_ROOT_DIR/../../contrib/Python
+
+pushd $PYAPIDIR
+
+export CNTK_EXECUTABLE_PATH=$TEST_CNTK_BINARY
+run py.test
+if errorlevel 0 echo __COMPLETED__
+
+popd
