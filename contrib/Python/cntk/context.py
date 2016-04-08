@@ -314,7 +314,8 @@ class Context(AbstractContext):
         retrieve the node shapes.
         '''
         filename = os.path.join(self.directory, config_file_name)
-        with open(os.path.join(self.directory, filename), 'w') as out:
+
+        with open(filename, 'w') as out:
             out.write(config_content)
 
         try:
