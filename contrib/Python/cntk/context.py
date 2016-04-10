@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 import os
 import re
 import sys
+import six
 import subprocess
 import numpy as np
 import shutil as sh
@@ -49,7 +50,7 @@ def get_new_context():
             return get_context(new_handle)
 
 
-class AbstractContext(object, metaclass=ABCMeta):
+class AbstractContext(object):
 
     '''
     This is the abstract CNTK context. It provides an API to run CNTK actions.
@@ -75,7 +76,7 @@ class AbstractContext(object, metaclass=ABCMeta):
         else:
             tmpdir = id(name)
 
-        self.directory = os.path.abspath('_cntk_%s' % tmpdir)
+        self.directory = '_cntk_%s' % tmpdir
 
         if os.path.exists(self.directory):
             print("Directory '%s' already exists" %
@@ -327,7 +328,7 @@ class Context(AbstractContext):
                 log.write(output)
 
         except subprocess.CalledProcessError as e:
-            print(e.output.decode('utf-8'), file=open('error.txt', 'w'))
+            six.print_(e.output.decode('utf-8'), file=open('error.txt', 'w'))
             raise
 
         if not output:
@@ -439,7 +440,13 @@ class Context(AbstractContext):
 
             seq_idx = parts[0].strip()
             payload = parts[1]
-            info, *data = payload.split(' ')
+
+            import pdb;pdb.set_trace()
+            print(sys.version)
+            print(six.PY2)
+            info, data = payload.split(' ', maxsplit=1)
+            data = data.split(' ')
+            
 
             if seq_idx != last_seq_idx:
                 if not info == 'w.shape':

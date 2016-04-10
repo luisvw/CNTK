@@ -4,7 +4,7 @@ import numpy as np
 from .graph import ComputationNode
 
 
-class AbstractReader(dict, metaclass=ABCMeta):
+class AbstractReader(dict):
 
     """ This is the abstract reader class
     """
