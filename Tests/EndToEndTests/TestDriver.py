@@ -374,7 +374,12 @@ class Test:
       for f in ["." + flavor.lower(), ""]:
         for d in ["." + device.lower(), ""]:
           candidateName = "baseline" + o + f + d + ".txt"
+<<<<<<< HEAD
           fullPath = cygpath(os.path.join(self.testDir, candidateName), relative=True)
+=======
+          fullPath = cygpath(os.path.join(self.testDir, candidateName),
+                  relative=True)
+>>>>>>> f961c91... Works also with Py3 under Cygwin
           if os.path.isfile(fullPath):
             return fullPath
     return None
