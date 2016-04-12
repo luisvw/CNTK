@@ -1,8 +1,12 @@
-dataDir: ../../../../../../Examples/Image/MNIST/Data
-
+dataDir: ./
 tags:
-    # TODO
-    - nightly-e (build_sku=='gpu') and ((device=='gpu') or (flavor=='release')) 
+     # the complete suite (2 flavours x 2 devices) should take
+     # no longer than 60 seconds with the longest test (debug cpu)
+     # finishing in below 30 seconds.
+     # running on every BVT job in 'S' (Speech) leg
+     - bvt-s  (build_sku == 'gpu')
+     # running unconditionally on every Nightly job in 'S' leg
+     - nightly-s (build_sku == 'gpu')
 
 testCases:
   CNTK Run must be completed:
@@ -19,13 +23,6 @@ testCases:
     patterns:
       - Finished Epoch[{{integer}} of {{integer}}]
       - TrainLossPerSample = {{float,tolerance=.1%}}
-      - EvalErrPerSample [0]={{float,tolerance=.1%}}
+      - EvalErrPerSample = {{float,tolerance=.1%}}
       - AvgLearningRatePerSample = {{float,tolerance=0.001%}}
-
-  Per-minibatch training results must match:
-    patterns:
-      - Epoch[{{integer}} of {{integer}}]-Minibatch[{{integer}}-{{integer}}
-      - SamplesSeen = {{integer}}
-      - TrainLossPerSample = {{float,tolerance=.1%}}
-      - EvalErr[0]PerSample = {{float,tolerance=.1%}}
 
