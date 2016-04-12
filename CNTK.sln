@@ -919,6 +919,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_Convolution", "01_Convol
 		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\01_Convolution\testcases.yml = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\01_Convolution\testcases.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_BatchNormConv", "02_BatchNormConv", "{AB9207B9-B134-4C57-B7ED-F3DCF7B0DC5F}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\02_BatchNormConv\run-test = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\02_BatchNormConv\run-test
+		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\02_BatchNormConv\testcases.yml = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\02_BatchNormConv\testcases.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03_ResNet", "03_ResNet", "{12FB912C-43F8-40FE-BD7F-B52F589A1EBC}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\03_ResNet\run-test = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\03_ResNet\run-test
+		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\03_ResNet\testcases.yml = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\03_ResNet\testcases.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04_ResNet", "04_ResNet", "{2BFE4D88-6F32-4701-887A-1DE3D7626DBB}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\04_ResNet_56\run-test = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\04_ResNet_56\run-test
+		Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\04_ResNet_56\testcases.yml = Tests\EndToEndTests\Examples\Image\Miscellaneous\CIFAR-10\04_ResNet_56\testcases.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_CpuOnly|x64 = Debug_CpuOnly|x64
@@ -1263,5 +1281,8 @@ Global
 		{8629430A-821E-43BA-AEC5-8B2CF31A2A7A} = {FC7E7EC7-6E6A-4518-81C6-DA60451C657A}
 		{0141526B-F257-4574-8CBE-99634726FFCE} = {8629430A-821E-43BA-AEC5-8B2CF31A2A7A}
 		{58286327-6742-44C4-A34E-D2583419E55E} = {0141526B-F257-4574-8CBE-99634726FFCE}
+		{AB9207B9-B134-4C57-B7ED-F3DCF7B0DC5F} = {0141526B-F257-4574-8CBE-99634726FFCE}
+		{12FB912C-43F8-40FE-BD7F-B52F589A1EBC} = {0141526B-F257-4574-8CBE-99634726FFCE}
+		{2BFE4D88-6F32-4701-887A-1DE3D7626DBB} = {0141526B-F257-4574-8CBE-99634726FFCE}
 	EndGlobalSection
 EndGlobal

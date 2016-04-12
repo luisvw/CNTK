@@ -12,7 +12,7 @@ if [[ "$CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY" == "" || ! -d "$CNTK_EXTERNAL_T
 fi
 
 if [ "$OS" == "Windows_NT" ]; then
-    DataSourceDir=`cygpath -au $CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY`/private/Image/CIFAR/Data
+    DataSourceDir=`cygpath -au $CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY/private/Image/CIFAR/Data`
 else
     DataSourceDir=$CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY/private/Image/CIFAR/Data
 fi
