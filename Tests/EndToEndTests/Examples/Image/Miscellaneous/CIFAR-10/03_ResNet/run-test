@@ -1,11 +1,32 @@
 #!/bin/bash
 . $TEST_ROOT_DIR/run-test-common
 
-# specific CIFAR variables
-. $TEST_DIR/../run-test-common
+ConfigDir=$TEST_DIR/../../../../../../../Examples/Image/Miscellaneous/CIFAR-10
+
+# This test uses a large dataset which is not part of the CNTK repository itself
+# We use the dataset from an external location specified using an environment variable
+if [[ "$CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY" == "" || ! -d "$CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY" ]]; then
+  echo 'This test uses external data that is not part of the CNTK repository. Environment variable CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY must be set to point to the external test data location'
+  exit 1
+fi
+echo $OS
+if [ "$OS" == "Windows_NT" ]; then
+    DataSourceDir=`cygpath -au $CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY/private/Image/CIFAR/Data/cifar-10-batches-py`
+else
+    DataSourceDir=$CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY/private/Image/CIFAR/Data/cifar-10-batches-py
+fi
+
+# Copy the test data to the test run directory
+echo 'Copying test data to local directory'
+DataDir=$TEST_RUN_DIR/cifar-10-batches-py
+mkdir $DataDir
+cp -R $DataSourceDir/* $DataDir || exit $?
+
+# Do not copy the data, just access it remotely
+#DataDir=$DataSourceDir
 
 # cntkrun <CNTK config file name> <additional CNTK args>
-cntkrun 03_ResNet.cntk "Train=[SGD=[maxEpochs=1]] Train=[SGD=[epochSize=128]] Train=[reader=[randomize=none]] stderr=-"
+cntkrun 03_ResNet.cntk "Train=[SGD=[maxEpochs=1]] Train=[SGD=[epochSize=128]] Train=[reader=[randomize=none]] Train=[SGD=[minibatchSize=16]] Test=[minibatchSize=16] stderr=-"
 ExitCode=$?
 
 exit $ExitCode
