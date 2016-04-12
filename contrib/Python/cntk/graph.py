@@ -299,7 +299,7 @@ class ComputationNode(object):
         return "\n".join(desc), has_inputs, dedupe_readers(readers)
 
 
-class InputComputationNodeBase(ComputationNode, metaclass=ABCMeta):
+class InputComputationNodeBase(ComputationNode):
 
     '''
     Base class for all non-image input nodes nodes and operators. Provides methods to attach
@@ -332,7 +332,7 @@ class InputComputationNodeBase(ComputationNode, metaclass=ABCMeta):
             self.reader.add_input(self, input_start, self.dims)
 
 
-class ImageInputComputationNodeBase(ComputationNode, metaclass=ABCMeta):
+class ImageInputComputationNodeBase(ComputationNode):
 
     '''
     Base class for all image input nodes nodes and operators. Provides methods to attach
