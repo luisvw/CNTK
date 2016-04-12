@@ -425,7 +425,7 @@ template <class ElemType>
 class IfNode : public ComputationNode<ElemType>, public NumInputs<3>
 {
     typedef ComputationNode<ElemType> Base;
-    UsingComputationNodeMembers;
+    UsingComputationNodeMembersBoilerplate;
 
     static const std::wstring TypeName()
     {
@@ -433,18 +433,19 @@ class IfNode : public ComputationNode<ElemType>, public NumInputs<3>
     }
 
 public:
+    DeclareConstructorFromConfigWithNumInputs(IfNode);
     IfNode(DEVICEID_TYPE deviceId, const wstring& name)
         : Base(deviceId, name)
     {
     }
 
 #if DUMPOUTPUT
-    virtual bool OutputUsedInComputingInputNodesGradients() const override { return true; }
+    virtual bool OutputUsedInComputingInputNodesGradients()  const override { return true; }
 #else
-    virtual bool OutputUsedInComputingInputNodesGradients() const override { return false; }
+    virtual bool OutputUsedInComputingInputNodesGradients()  const override { return false; }
 #endif
 
-    virtual bool InputUsedInComputingInputNodesGradients(size_t /*childIndex*/) const override { return false; }
+    virtual bool InputUsedInComputingInputNodesGradients(size_t /*childIndex*/)  const override { return false; }
 
     virtual void /*IComputationNode::*/ BeginForwardProp() override // called before first iteration step of ForwardProp()
     {
@@ -486,7 +487,7 @@ public:
         }
         else if (inputIndex == 2)
         {
-            inputGradient.AddCopyIfNotOf(input0, grandient);
+            inputGradient.AddCopyIfNotOf(input0, gradient);
         }
     }
 
