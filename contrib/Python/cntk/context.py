@@ -441,9 +441,6 @@ class Context(AbstractContext):
             seq_idx = parts[0].strip()
             payload = parts[1]
 
-            import pdb;pdb.set_trace()
-            print(sys.version)
-            print(six.PY2)
             info, data = payload.split(' ', maxsplit=1)
             data = data.split(' ')
             
