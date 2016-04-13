@@ -26,7 +26,7 @@ cp -R $DataSourceDir/cifar-10-batches-py $DataDir || exit $?
 #DataDir=$DataSourceDir
 
 # cntkrun <CNTK config file name> <additional CNTK args>
-cntkrun 04_ResNet_56.cntk "Train=[SGD=[maxEpochs=1]] Train=[SGD=[epochSize=100]] Train=[reader=[randomize=none]] stderr=-"
+cntkrun 04_ResNet_56.cntk "Train=[SGD=[maxEpochs=1]] Train=[SGD=[epochSize=128]] Train=[reader=[randomize=none]] Train[SGD=[minibatchSize=32]] Test[minibatchSize=32] stderr=-"
 ExitCode=$?
 
 exit $ExitCode
