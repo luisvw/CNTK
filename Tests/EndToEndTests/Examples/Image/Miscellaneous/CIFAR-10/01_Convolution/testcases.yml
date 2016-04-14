@@ -2,9 +2,9 @@ dataDir: ../../../../../Image/Data
 
 tags:
     # In BVT, run Release GPU (~ 5 - 10 sec)
-    - bvt-e (build_sku=='gpu') and (device=='gpu') and (flavor=='release') 
+    - bvt-e (build_sku=='gpu') & (device=='gpu') & (flavor=='release') 
     # In Nightly on Linux, additionally run Debug GPU and Release CPU (~ 130 - 150 sec)
-    - nightly-e (build_sku=='gpu') and (((device=='gpu') and (flavor=='release')) or (os=='linux' and ((flavor=='debug') ^ (device=='cpu'))))
+    - nightly-e (build_sku=='gpu') & (((device=='gpu') & (flavor=='release')) | ((os=='linux') & ((flavor=='debug') ^ (device=='cpu'))))
 
 testCases:
   CNTK Run must be completed:

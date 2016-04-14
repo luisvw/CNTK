@@ -306,7 +306,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{76F9323D-34A1-43A5-A594-C4798931FF21}"
 	ProjectSection(SolutionItems) = preProject
 		Tests\EndToEndTests\Image\Data\labelsmap.txt = Tests\EndToEndTests\Image\Data\labelsmap.txt
-		Tests\EndToEndTests\Image\Data\Test-dis.txt = Tests\EndToEndTests\Image\Data\Test-dis.txt
+		Tests\EndToEndTests\Image\Data\Test.txt = Tests\EndToEndTests\Image\Data\Test.txt
 		Tests\EndToEndTests\Image\Data\Train.txt = Tests\EndToEndTests\Image\Data\Train.txt
 	EndProjectSection
 EndProject
