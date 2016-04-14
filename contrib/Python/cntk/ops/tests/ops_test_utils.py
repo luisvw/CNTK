@@ -14,12 +14,18 @@ from ...context import get_new_context
 from ...graph import *
 from ...reader import *
 
+# NumPy's allclose() has 1e08 as the absolute tolerance, which is too strict for
+# functions like sigmoid.
+TOLERANCE_ABSOLUTE = 1E-06 
+
+PRECISION_TO_TYPE = {'float': np.float32, 'double':np.float64}
+
 #Keeping things short
 C = constant
 I = input_reader
 AA = np.asarray
 
-@pytest.fixture(params=["float","double"])
+@pytest.fixture(params=["float", "double"])
 def precision(request):
     return request.param
 
@@ -34,5 +40,5 @@ def unittest_helper(root_node, input_reader, expected, device_id = -1, precision
 
         assert len(result) == len(expected)
         for res, exp in zip(result, expected):  
-            assert np.allclose(res, exp)
+            assert np.allclose(res, exp, atol=TOLERANCE_ABSOLUTE)
             assert res.shape == AA(exp).shape
