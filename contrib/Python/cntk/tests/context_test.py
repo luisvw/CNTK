@@ -71,7 +71,7 @@ def test_parse_eval_result_output_1():
 def test_parse_eval_result_output_2():
     output = '''\
 0	|w.shape 8 1
-0	|w 1.#IND -1.#IND 1.#INF -1.#INF nan -nan inf -inf 
+0	|w 1.#IND -1.#IND 1.#INF00 -1.#INF nan -nan inf -inf 
 '''
     data = Context._parse_result_output(output)
     data = data[0][0] # First sequence in first batch

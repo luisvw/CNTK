@@ -439,13 +439,13 @@ class Context(AbstractContext):
                 try:
                     data[i] = float(data[i])
                 except ValueError:
-                    if data[i] == '1.#IND':
+                    if data[i].startswith('1.#IND'):
                         data[i] = np.nan
-                    elif data[i] == '-1.#IND':
+                    elif data[i].startswith('-1.#IND'):
                         data[i] = -np.nan
-                    elif data[i] == '1.#INF':
+                    elif data[i].startswith('1.#INF'):
                         data[i] = np.inf
-                    elif data[i] == '-1.#INF':
+                    elif data[i].startswith('-1.#INF'):
                         data[i] = -np.inf
 
             return np.asarray(data, dtype=float)
