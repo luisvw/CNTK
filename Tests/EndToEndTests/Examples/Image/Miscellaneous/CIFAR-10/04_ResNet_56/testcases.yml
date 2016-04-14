@@ -1,4 +1,4 @@
-dataDir: ../../../../../Image/Data
+dataDir: .
 
 tags:
     # running on every BVT job in 'E' (Examples) leg
