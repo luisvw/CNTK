@@ -1,7 +1,9 @@
 dataDir: ../../../../../Image/Data
 
 tags:
-    # In BVT, run Release GPU (~ 5 - 10 sec)
+    # Execution time: Release-CPU ~ 65sec, Release-GPU ~ 2sec
+    # Debug version asserts on Windows.
+    # In BVT, run Release GPU
     - bvt-e (build_sku=='gpu') & (device=='gpu') & (flavor=='release') 
     # In Nightly on Linux, additionally run Debug GPU and Release CPU (~ 130 - 150 sec)
     - nightly-e (build_sku=='gpu') & (((device=='gpu') & (flavor=='release')) | ((os=='linux') & ((flavor=='debug') ^ (device=='cpu'))))

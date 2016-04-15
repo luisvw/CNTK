@@ -1,6 +1,8 @@
 dataDir: .
 
 tags:
+    # Execution time: Release-GPU ~ 10sec
+    # CPU version not supported. Debug-GPU throws exception 
     # running on every BVT job in 'E' (Examples) leg
     - bvt-e ((build_sku=='gpu') & (flavor=='release') & (device=='gpu')) 
     # running every Nightly job in 'E' (Examples) leg

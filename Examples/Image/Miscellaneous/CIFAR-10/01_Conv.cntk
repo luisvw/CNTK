@@ -47,6 +47,7 @@ Train = [
         readerType = "UCIFastReader"
         file = "$DataDir$/Train.txt"
         randomize = "auto"
+        # Setting minibatchMode="full" is a temporary fix to prevent an exception until the reader is migrated to the new reader.
         minibatchMode="full"
         features = [
             dim = 3072
