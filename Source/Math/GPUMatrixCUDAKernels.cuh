@@ -2815,6 +2815,43 @@ __global__ void _shiftColCSCIndexFromSliceViewToAbsolute(
         colCSCIndex[cols] = nz;
 }
 
+//  c = alpha * op(a) * op(b) + beta*c
+template <class ElemType>
+__global__ void _dense1DMultSparseAndWeightedAddToDense(
+	const int m,                 // rowDense
+	const int k,                 // colDense
+	const int n,                 // colSparse
+	const ElemType alpha,
+	const ElemType* a,           // dense
+	const bool transposeA,
+	const ElemType* bnzValues,   // sparse nz values
+	const GPUSPARSE_INDEX_TYPE* rowIndex,
+	const GPUSPARSE_INDEX_TYPE* colCSCIndex,
+	const ElemType beta,
+	ElemType* c                  // dense target
+	)
+{
+	CUDA_LONG id = blockDim.x * blockIdx.x + threadIdx.x;
+	if (id >= m * n)
+		return;
+
+	int colInC = id / m;
+	int rowInC = id % m;
+
+	int start = colCSCIndex[colInC];
+	int end = colCSCIndex[colInC + 1];
+
+	ElemType s = 0;
+	for (int j = start; j < end; j++) // j points to the value
+	{
+		if (!transposeA)
+			s += a[IDX2C(rowInC, rowIndex[j], m)] * bnzValues[j];
+		else
+			s += a[IDX2C(rowIndex[j], rowInC, k)] * bnzValues[j];
+	}
+	c[IDX2C(rowInC, colInC, m)] = alpha * s + (beta == 0 ? 0 : beta * c[IDX2C(rowInC, colInC, m)]); // If beta is zero then don't lookup c	
+}
+
 //c = alpha * op(a) * op(b) + beta*c
 // TODO: This function can be further improved by loading the kernel in shared memory
 template <class ElemType>
@@ -2848,31 +2885,31 @@ __global__ void _dense1DConvMultSparseCSCAndWeightedAddToDense(
     int end = colCSCIndex[colInC + 1];
 
     ElemType s = 0;
-    for (int j = start; j < end; j++) // j points to the value
-    {
-        int i = rowIndex[j] - (horizontalSubsample * numChannels * stepIdx); // offset row index by the convolution step
+	for (int j = start; j < end; j++) // j points to the value
+	{
+		int i = rowIndex[j] - (horizontalSubsample * numChannels * stepIdx); // offset row index by the convolution step
 
-        if (i >= 0)
-        {
-            if (i >= k)
-                break;
+		if (i >= 0)
+		{
+			if (i >= k)
+				break;
 
-            // Convert to channelwise index.
-            // This is similar to rowwise to columnwise conversion
-            if (channelwise)
-            {
-                int pixel = i / numChannels;
-                int channel = i % numChannels;
-                int numPixels = k / numChannels;
-                i = channel * numPixels + pixel;
-            }
+			// Convert to channelwise index.
+			// This is similar to rowwise to columnwise conversion
+			if (channelwise)
+			{
+				int pixel = i / numChannels;
+				int channel = i % numChannels;
+				int numPixels = k / numChannels;
+				i = channel * numPixels + pixel;
+			}
 
-            if (!transposeA)
-                s += a[IDX2C(rowInC % m, i, m)] * bnzValues[j];
-            else
-                s += a[IDX2C(i, rowInC % m, k)] * bnzValues[j];
-        }
-    }
+			if (!transposeA)
+				s += a[IDX2C(rowInC % m, i, m)] * bnzValues[j];
+			else
+				s += a[IDX2C(i, rowInC % m, k)] * bnzValues[j];
+		}
+	}
 
     c[IDX2C(rowInC, colInC, m * numSteps)] = alpha * s + (beta == 0 ? 0 : beta * c[IDX2C(rowInC, colInC, m * numSteps)]); // If beta is zero then don't lookup c
 }
