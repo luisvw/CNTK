@@ -203,7 +203,7 @@ bool Indexer::TryGetSequenceId(size_t& id)
             char c = *m_pos;
             // a well-formed sequence id must end in either a column delimiter 
             // or a name prefix
-            if (c == COLUMN_DELIMITER || c == NAME_PREFIX)
+            if (c == VALUE_DELIMITER || c == COLUMN_DELIMITER || c == NAME_PREFIX)
             {
                 return found;
             }

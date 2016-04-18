@@ -268,3 +268,37 @@ Simple = [
     ]
 ]
 
+edge_cases_1 = [
+    precision = "double"
+    reader = [
+        readerType = "CNTKTextFormatReader"
+        # Training file contains 50 sequence with *up to* 20 samples each
+        file = "CNTKTextFormatReader/edge_cases_1.txt"
+
+        randomize = "none"
+        
+        #maxErrors = 0 -- default value
+        traceLevel = 1
+
+        input = [
+             features1 = [
+                alias = "F1"
+                dim = 15 
+                format = "dense"
+            ]
+
+            features2 = [
+                alias = "F2"         
+                dim = 12
+                format = "dense"
+            ]
+
+            features3 = [
+                alias = "F3"           
+                dim = 1
+                format = "dense"
+            ]
+        ]
+    ]
+]
+

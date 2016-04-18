@@ -252,6 +252,12 @@
     <Text Include="Control\ImageReaderMultiView_Control.txt">
       <Filter>Control</Filter>
     </Text>
+    <Text Include="Data\CNTKTextFormatReader\edge_cases_1.txt">
+      <Filter>Data\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Control\CNTKTextFormatReader\edge_cases_1.txt">
+      <Filter>Control\CNTKTextFormatReader</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Data\images\black.jpg">

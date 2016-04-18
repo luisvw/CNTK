@@ -479,7 +479,7 @@ bool TextParser<ElemType>::TryReadRow(SequenceBuffer& sequence, size_t& bytesToR
     {
         char c = *m_pos;
 
-        if (isdigit(c) || c == COLUMN_DELIMITER || c == CARRIAGE_RETURN)
+        if (isdigit(c) || c == COLUMN_DELIMITER || c == VALUE_DELIMITER || c == CARRIAGE_RETURN)
         {
             // skip sequence ids, column separators and CRs.
             ++m_pos;

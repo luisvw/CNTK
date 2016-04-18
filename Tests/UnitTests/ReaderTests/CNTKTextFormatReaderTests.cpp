@@ -216,6 +216,25 @@ BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_50x20_jagged_sequences_dense)
         1);
 };
 
+
+// 1 sequence with 2 samples for each of 3 inputs
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_edge_cases_1)
+{
+    HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/dense.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/edge_cases_1.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/edge_cases_1_Output.txt",
+        "edge_cases_1",
+        "reader",
+        2,  // epoch size
+        2,  // mb size  
+        1,  // num epochs
+        3,
+        0,
+        0,
+        1);
+};
+
 // 1 single sample sequence
 BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_1x1_sparse)
 {
