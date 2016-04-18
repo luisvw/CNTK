@@ -902,51 +902,6 @@ void GPUSparseMatrix<ElemType>::GetMatrixFromCSCFormat(GPUSPARSE_INDEX_TYPE*& h_
 
 #pragma region Static BLAS Functions
 
-//// dense X sparse = dense
-//template <class ElemType>
-//void GPUSparseMatrix<ElemType>::MultiplyAndWeightedAdd(ElemType alpha, const GPUMatrix<ElemType>& lhs, const bool transposeA,
-//	const GPUSparseMatrix<ElemType>& rhs, const bool transposeB, ElemType beta, GPUMatrix<ElemType>& c)
-//{
-//	if (lhs.GetComputeDeviceId() != rhs.GetComputeDeviceId() || (lhs.GetComputeDeviceId() != c.GetComputeDeviceId()))
-//		RuntimeError("GPUSparseMatrix::MultiplyAndWeightedAdd: All matrices must be on the same GPU");
-//
-//	if (lhs.IsEmpty() || rhs.IsEmpty())
-//		LogicError("GPUSparseMatrix::MultiplyAndWeightedAdd:  one of the input matrix is empty.");
-//
-//	int m = transposeA ? (int) lhs.GetNumCols() : (int) lhs.GetNumRows();
-//	int k = transposeA ? (int) lhs.GetNumRows() : (int) lhs.GetNumCols();
-//	int l = transposeB ? (int) rhs.GetNumCols() : (int) rhs.GetNumRows();
-//	int n = transposeB ? (int) rhs.GetNumRows() : (int) rhs.GetNumCols();
-//
-//	assert(m > 0 && k > 0 && l > 0 && n > 0); // converting from size_t to int may cause overflow
-//	assert(k == l);
-//	if (k != l)
-//	{
-//		InvalidArgument("GPUSparseMatrix::MultiplyAndWeightedAdd: The inner dimensions of a and b must match.");
-//	}
-//
-//	if (beta == 0)
-//		c.RequireSize(m, n);
-//	else
-//		c.VerifySize(m, n); // Can't resize if beta != 0
-//
-//	c.PrepareDevice();
-//	if (rhs.GetFormat() == MatrixFormat::matrixFormatSparseCSC)
-//	{
-//		ConvolveAndWeightedAdd(alpha, lhs, transposeA, rhs, transposeB, beta, c, 1, 1, false, false);
-//	}
-//	else if (rhs.GetFormat() == matrixFormatSparseCSR)
-//	{
-//		GPUSparseMatrix<ElemType> tempMatrix(rhs.GetComputeDeviceId(), matrixFormatSparseCSC);
-//		rhs.ConvertToSparseFormat(matrixFormatSparseCSC, tempMatrix);
-//		MultiplyAndWeightedAdd(alpha, lhs, transposeA, tempMatrix, transposeB, beta, c);
-//	}
-//	else
-//	{
-//		NOT_IMPLEMENTED;
-//	}
-//}
-
 // dense X sparse = dense
 template <class ElemType>
 void GPUSparseMatrix<ElemType>::MultiplyAndWeightedAdd(ElemType alpha, const GPUMatrix<ElemType>& lhs, const bool transposeA,
@@ -977,11 +932,10 @@ void GPUSparseMatrix<ElemType>::MultiplyAndWeightedAdd(ElemType alpha, const GPU
 
 	c.PrepareDevice();
 	int blocksPerGrid = (int)ceil(1.0 * m * n / GridDim::maxThreadsPerBlock);
-	SyncGuard syncGuard;
 	if (rhs.GetFormat() == MatrixFormat::matrixFormatSparseCSC)
 	{
 		if (!transposeB) {
-			//
+			SyncGuard syncGuard;
 			_dense1DMultSparseAndWeightedAddToDense<ElemType><<<blocksPerGrid, GridDim::maxThreadsPerBlock, 0, t_stream>>>(
 				m,     // rowDense
 				k,     // colDense
@@ -997,6 +951,7 @@ void GPUSparseMatrix<ElemType>::MultiplyAndWeightedAdd(ElemType alpha, const GPU
 				);
 		} else {
 			GPUSparseMatrix<ElemType> rhsTranspose = rhs.Transpose();
+			SyncGuard syncGuard;
 			_dense1DMultSparseAndWeightedAddToDense<ElemType><<<blocksPerGrid, GridDim::maxThreadsPerBlock, 0, t_stream>>>(
 				m,     // rowDense
 				k,     // colDense
@@ -1016,6 +971,7 @@ void GPUSparseMatrix<ElemType>::MultiplyAndWeightedAdd(ElemType alpha, const GPU
 	{
 		if (!transposeB) {
 			GPUSparseMatrix<ElemType> rhsTranspose = rhs.Transpose();
+			SyncGuard syncGuard;
 			_dense1DMultSparseAndWeightedAddToDense<ElemType><<<blocksPerGrid, GridDim::maxThreadsPerBlock, 0, t_stream>>>(
 				m,     // rowDense
 				k,     // colDense
@@ -1032,6 +988,7 @@ void GPUSparseMatrix<ElemType>::MultiplyAndWeightedAdd(ElemType alpha, const GPU
 		}
 		else
 		{		
+			SyncGuard syncGuard;
 			_dense1DMultSparseAndWeightedAddToDense<ElemType><<<blocksPerGrid, GridDim::maxThreadsPerBlock, 0, t_stream>>>(
 				m,     // rowDense
 				k,     // colDense
