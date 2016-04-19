@@ -529,9 +529,9 @@ shared_ptr<ComputationNode<ElemType>> ComputationNetworkBuilder<ElemType>::Hardm
 }
 
 template <class ElemType>
-shared_ptr<ComputationNode<ElemType>> ComputationNetworkBuilder<ElemType>::If(const ComputationNodePtr a, const std::wstring nodeName)
+shared_ptr<ComputationNode<ElemType>> ComputationNetworkBuilder<ElemType>::If(const ComputationNodePtr a, const ComputationNodePtr b, const ComputationNodePtr c, const std::wstring nodeName)
 {
-    return net.AddNodeToNetAndAttachInputs(New<IfNode<ElemType>>(net.GetDeviceId(), nodeName), { a });
+    return net.AddNodeToNetAndAttachInputs(New<IfNode<ElemType>>(net.GetDeviceId(), nodeName), { a, b, c });
 }
 
 template <class ElemType>

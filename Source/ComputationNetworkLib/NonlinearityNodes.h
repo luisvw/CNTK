@@ -455,9 +455,14 @@ public:
         Value().SwitchToMatrixType(MatrixType::DENSE, MatrixFormat::matrixFormatDense, false);
     }
 
+    // BUGBUG method melow is just to get some test running. For insiration how correct code would look like check ValidateBinaryZip(....)
     virtual void /*ComputationNodeBase::*/ Validate(bool isFinalValidationPass) override
     {
-        ValidateBinaryZip(isFinalValidationPass, true /*allowBroadcast*/);
+        // this assumes that Input(1) and Input(2) are constants
+        assert(m_inputs.size() == 3);
+        ComputationNodeBase::Validate(isFinalValidationPass);
+        InferMBLayoutFromInputsForStandardCase(isFinalValidationPass);
+        SetDims(Input(0));
     }
 
     virtual void /*ComputationNode::*/ ForwardProp(const FrameRange& fr) override
