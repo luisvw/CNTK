@@ -652,7 +652,7 @@ protected:
     void ValidateInferNaryInputDims(size_t nInputs);
     void ValidateBinaryZip(bool isFinalValidationPass, bool allowBroadcast);
     void ValidateBinaryReduce(bool isFinalValidationPass);
-    void ValidateTernaryZip(bool isFinalValidationPass, bool allowBroadcast);
+    void ValidateNaryZip(bool isFinalValidationPass, bool allowBroadcast, size_t numInputs);
     void InferMBLayoutFromInputsForStandardCase(bool isFinalValidationPass);
     virtual void ValidateInferInputDimsFrom(const TensorShape&) = 0;    // (implemented by ComputationNode<ElemType>)
 

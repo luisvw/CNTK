@@ -461,7 +461,7 @@ public:
     // BUGBUG method melow is just to get some test running. For insiration how correct code would look like check ValidateBinaryZip(....)
     virtual void /*ComputationNodeBase::*/ Validate(bool isFinalValidationPass) override
     {
-        ValidateTernaryZip(isFinalValidationPass, true);
+        ValidateNaryZip(isFinalValidationPass, /* allow broadcast */ true, /* num Inputs */ 3);
     }
 
     virtual void /*ComputationNode::*/ ForwardProp(const FrameRange& fr) override
