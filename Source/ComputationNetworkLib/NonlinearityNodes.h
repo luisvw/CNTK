@@ -423,7 +423,7 @@ template class HardmaxNode<float>;
 template class HardmaxNode<double>;
 
 
-// 'If' Node
+// 'If' Node. Similar if (a ? b : c). If first input is !=0 return second input, else third
 template <class ElemType>
 class IfNode : public ComputationNode<ElemType>, public NumInputs<3>
 {
@@ -458,7 +458,6 @@ public:
         Value().SwitchToMatrixType(MatrixType::DENSE, MatrixFormat::matrixFormatDense, false);
     }
 
-    // BUGBUG method melow is just to get some test running. For insiration how correct code would look like check ValidateBinaryZip(....)
     virtual void /*ComputationNodeBase::*/ Validate(bool isFinalValidationPass) override
     {
         ValidateNaryZip(isFinalValidationPass, /* allow broadcast */ true, /* num Inputs */ 3);
@@ -481,9 +480,7 @@ public:
         auto input0 = Input(0)->ValueTensorFor(rank, fr.AllowBroadcast());
         auto inputGradient = Input(inputIndex)->GradientTensorFor(rank, fr.AllowBroadcast());
 
-        // if reduction then mask the respective input(s) (zero out the gaps)
-        if (Input(inputIndex)->ReducesInTimeWrt(shared_from_this()))
-            MaskMissingGradientColumnsToZero(fr);
+        // Do we need some reductions like in same method of BinaryElementWiseNode??
 
         if (inputIndex == 1)
         {
