@@ -458,11 +458,7 @@ public:
     // BUGBUG method melow is just to get some test running. For insiration how correct code would look like check ValidateBinaryZip(....)
     virtual void /*ComputationNodeBase::*/ Validate(bool isFinalValidationPass) override
     {
-        // this assumes that Input(1) and Input(2) are constants
-        assert(m_inputs.size() == 3);
-        ComputationNodeBase::Validate(isFinalValidationPass);
-        InferMBLayoutFromInputsForStandardCase(isFinalValidationPass);
-        SetDims(Input(0));
+        ValidateTernaryZip(isFinalValidationPass, true);
     }
 
     virtual void /*ComputationNode::*/ ForwardProp(const FrameRange& fr) override
