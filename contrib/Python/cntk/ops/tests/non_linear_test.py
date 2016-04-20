@@ -39,7 +39,7 @@ def test_op_sigmoid(tensor, device_id, precision):
     input_node = I([tensor], has_sequence_dimension=False)
     op_node = sigmoid(input_node)
 
-    unittest_helper(op_node, expected,
+    unittest_helper(op_node, None, expected,
                     device_id=device_id,
                     precision=precision,
                     clean_up=True, backward_pass=False)
@@ -50,7 +50,7 @@ def test_op_sigmoid(tensor, device_id, precision):
     s = numpy_op(tensor)
     expected = [[s * (1 - s)]]
 
-    unittest_helper(op_node, expected, device_id=device_id,
+    unittest_helper(op_node, None, expected, device_id=device_id,
                     precision=precision, clean_up=True, backward_pass=True,
                     input_node=input_node)
 
@@ -87,7 +87,7 @@ def test_op_softmax(batch, device_id, precision):
     #op_node = CrossEntropyWithSoftmax(I([[0,1],[0,1]], has_sequence_dimension=False), input_node)
 
     expected = [[numpy_op(sample)] for sample in batch]
-    unittest_helper(op_node, expected,
+    unittest_helper(op_node, None, expected,
                     device_id=device_id,
                     precision=precision,
                     clean_up=True, backward_pass=False)
@@ -98,7 +98,7 @@ def test_op_softmax(batch, device_id, precision):
     if False: # FIXME: We get only zeros here!!!
         expected = [[]]
 
-        unittest_helper(op_node, expected, 
+        unittest_helper(op_node, None, expected, 
                 device_id=device_id,
                         precision=precision, clean_up=True, backward_pass=True,
                         input_node=input_node)
@@ -122,7 +122,7 @@ def test_op_exp(tensor, device_id, precision):
     input_node = I([tensor], has_sequence_dimension=False)
     op_node = exp(input_node)
 
-    unittest_helper(op_node, expected,
+    unittest_helper(op_node, None, expected,
                     device_id=device_id,
                     precision=precision,
                     clean_up=True, backward_pass=False)
@@ -132,7 +132,7 @@ def test_op_exp(tensor, device_id, precision):
     # The expected results for the backward pass is exp()
     expected = [[numpy_op(tensor)]]
 
-    unittest_helper(op_node, expected, device_id=device_id,
+    unittest_helper(op_node, None, expected, device_id=device_id,
                     precision=precision, clean_up=True, backward_pass=True,
                     input_node=input_node)
 
@@ -154,7 +154,7 @@ def test_op_tanh(tensor, device_id, precision):
     input_node = I([tensor], has_sequence_dimension=False)
     op_node = tanh(input_node)
 
-    unittest_helper(op_node, expected,
+    unittest_helper(op_node, None, expected,
                     device_id=device_id,
                     precision=precision,
                     clean_up=True, backward_pass=False)
@@ -164,7 +164,7 @@ def test_op_tanh(tensor, device_id, precision):
     # The expected results for the backward pass is 1-tanh(x)^2
     expected = [[1-numpy_op(tensor)**2]]
 
-    unittest_helper(op_node, expected, device_id=device_id,
+    unittest_helper(op_node, None, expected, device_id=device_id,
                     precision=precision, clean_up=True, backward_pass=True,
                     input_node=input_node)
 
@@ -187,7 +187,7 @@ def test_op_rectified_linear(tensor, device_id, precision):
     input_node = I([tensor], has_sequence_dimension=False)
     op_node = rectified_linear(input_node)
 
-    unittest_helper(op_node, expected,
+    unittest_helper(op_node, None, expected,
                     device_id=device_id,
                     precision=precision,
                     clean_up=True, backward_pass=False)
@@ -202,6 +202,6 @@ def test_op_rectified_linear(tensor, device_id, precision):
 
     expected = [[numpy_op_grad(tensor)]]
 
-    unittest_helper(op_node, expected, device_id=device_id,
+    unittest_helper(op_node, None, expected, device_id=device_id,
                     precision=precision, clean_up=True, backward_pass=True,
                     input_node=input_node)
