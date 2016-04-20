@@ -159,7 +159,9 @@
     <Text Include="Control\CNTKTextFormatReader\1x1_1_dense.txt" />
     <Text Include="Control\CNTKTextFormatReader\1x1_2_dense.txt" />
     <Text Include="Control\CNTKTextFormatReader\1x1_sparse.txt" />
-    <Text Include="Control\CNTKTextFormatReader\edge_cases_1.txt" />
+    <Text Include="Control\CNTKTextFormatReader\blank_lines.txt" />
+    <Text Include="Control\CNTKTextFormatReader\space_separated.txt" />
+    <Text Include="Control\CNTKTextFormatReader\missing_trailing_newline.txt" />
     <Text Include="Control\CNTKTextFormatReader\MNIST_dense.txt" />
     <Text Include="Control\CNTKTextFormatReader\Simple_dense.txt" />
     <Text Include="Control\HTKMLFReaderSimpleDataLoop10_20_Control.txt" />
@@ -181,8 +183,10 @@
     <Text Include="Data\CNTKTextFormatReader\10x1_MI_dense.txt" />
     <Text Include="Data\CNTKTextFormatReader\1x1_dense.txt" />
     <Text Include="Data\CNTKTextFormatReader\1x1_sparse.txt" />
-    <Text Include="Data\CNTKTextFormatReader\edge_cases_1.txt" />
+    <Text Include="Data\CNTKTextFormatReader\contains_blank_lines.txt" />
+    <Text Include="Data\CNTKTextFormatReader\space_separated.txt" />
     <Text Include="Data\CNTKTextFormatReader\MNIST_dense.txt" />
+    <Text Include="Data\CNTKTextFormatReader\missing_trailing_newline.txt" />
     <Text Include="Data\CNTKTextFormatReader\Simple_dense.txt" />
     <Text Include="Data\ImageReaderBadLabel_map.txt" />
     <Text Include="Data\ImageReaderBadMap_map.txt" />
@@ -202,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Config\CNTKTextFormatReader\dense.cntk" />
+    <None Include="Config\CNTKTextFormatReader\edge_cases.cntk" />
     <None Include="Config\CNTKTextFormatReader\sparse.cntk" />
     <None Include="Config\ImageReaderBadLabel_Config.cntk" />
     <None Include="Config\ImageReaderBadMap_Config.cntk" />

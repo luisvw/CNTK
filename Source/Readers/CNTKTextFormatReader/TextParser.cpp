@@ -85,6 +85,7 @@ TextParser<ElemType>::TextParser(const std::wstring& filename, const vector<Stre
     m_chunkSizeBytes(0),
     m_chunkCacheSize(0),
     m_traceLevel(TraceLevel::Error),
+    m_hadWarnings(false),
     m_numAllowedErrors(0),
     m_skipSequenceIds(false)
 {
@@ -122,6 +123,19 @@ TextParser<ElemType>::~TextParser()
         fclose(m_file);
     }
 }
+
+template <class ElemType>
+void TextParser<ElemType>::PrintWarningNotification()
+{
+    if (m_hadWarnings && m_traceLevel < Warning)
+    {
+        fprintf(stderr,
+            "A number of warnings were generated while reading input data,"
+            "to see them please set 'traceLevel' to a value greater or equal to %d", Warning);
+    }
+}
+
+
 
 template <class ElemType>
 void TextParser<ElemType>::Initialize()
@@ -326,6 +340,7 @@ void TextParser<ElemType>::IncrementNumberOfErrorsOrDie()
 {
     if (m_numAllowedErrors == 0)
     {
+        PrintWarningNotification();
         RuntimeError("Reached maximum allowed number of reader errors");
     }
     --m_numAllowedErrors;
@@ -417,7 +432,7 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
         else 
         {
             IncrementNumberOfErrorsOrDie();
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: could not read a row (# %" PRIu64 ")"
@@ -428,7 +443,7 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
 
         if (!bytesToRead && numRowsRead < expectedRowCount)
         {
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: exhausted all expected input"
@@ -457,7 +472,7 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
         {
             fprintf(stderr,
                 "ERROR: While reading input %" PRIu64 ""
-                " in sequence id = %" PRIu64 
+                " in sequence id = %" PRIu64
                 " at file offset = %" PRId64 ": Input is empty.\n", i + 1, sequenceDsc.m_id, GetFileOffset());
             hasEmptyInputs = true;
         }
@@ -492,6 +507,14 @@ bool TextParser<ElemType>::TryReadRow(SequenceBuffer& sequence, size_t& bytesToR
             // found the end of row, skip the delimiter, return.
             ++m_pos;
             --bytesToRead;
+
+            if (!found && (m_hadWarnings = true, m_traceLevel >= Warning))
+            {
+                fprintf(stderr,
+                    "WARNING: found an empty line while reading an input row"
+                    " at the offset = %" PRId64 "\n", GetFileOffset());
+            }
+
             return found;
         }
 
@@ -561,7 +584,7 @@ bool TextParser<ElemType>::TryReadRow(SequenceBuffer& sequence, size_t& bytesToR
         found |= true;
     }
 
-    if (m_traceLevel >= Warning)
+    if (m_hadWarnings = true, m_traceLevel >= Warning)
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -581,7 +604,7 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
     // prefix check.
     if (c != NAME_PREFIX)
     {
-        if (m_traceLevel >= Warning)
+        if (m_hadWarnings = true, m_traceLevel >= Warning)
         {
             fprintf(stderr,
                 "WARNING: unexpected character('%c') in place of a name prefix ('%c')"
@@ -613,7 +636,7 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
                     id = it->second;
                     return true;
                 }
-                else if (m_traceLevel >= Warning)
+                else if (m_hadWarnings = true, m_traceLevel >= Warning)
                 {
                     fprintf(stderr,
                         "WARNING: an invalid input name ('%s')"
@@ -621,7 +644,7 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
                         " at the offset = %" PRId64 "\n", name.c_str(), GetFileOffset());
                 }
             }
-            else if (m_traceLevel >= Warning)
+            else if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: a name prefix is immediately  followed by a delimiter"
@@ -640,7 +663,7 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
         {
             // the current string length is already equal to the maximum expected length,
             // yet it's not followed by a delimiter.
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: was not able to find an input name"
@@ -653,7 +676,7 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
         --bytesToRead;
     }
 
-    if (m_traceLevel >= Warning)
+    if (m_hadWarnings = true, m_traceLevel >= Warning)
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -684,9 +707,14 @@ bool TextParser<ElemType>::TryReadDenseSample(vector<ElemType>& values, size_t s
 
             if (counter > sampleSize)
             {
-                RuntimeError("Encountered a sample (size = %" PRId64 ")"
-                    " exceeding the expected size of %" PRId64 " at the offset  %" PRId64,
-                    counter, sampleSize, GetFileOffset());
+                if (m_hadWarnings = true, m_traceLevel >= Warning)
+                {
+                    fprintf(stderr,
+                        "WARNING: Encountered a sample (size = %" PRId64 ")"
+                        " exceeding the expected size of %" PRId64 " at the offset  %" PRId64,
+                        counter, sampleSize, GetFileOffset());
+                }
+                return false;
             }
 
             while (counter < sampleSize)
@@ -719,7 +747,7 @@ bool TextParser<ElemType>::TryReadDenseSample(vector<ElemType>& values, size_t s
     }
 
     IncrementNumberOfErrorsOrDie();
-    if (m_traceLevel >= Warning)
+    if (m_hadWarnings = true, m_traceLevel >= Warning)
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -762,7 +790,7 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
         } 
         if (index > numeric_limits<IndexType>::max())
         {
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: sparse index value(%" PRIu64 ") exceeds the maximum allowed "
@@ -773,7 +801,7 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
         }
         if (index > numeric_limits<IndexType>::max())
         {
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: sparse index value(%" PRIu64 ") exceeds the maximum allowed "
@@ -793,7 +821,7 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
         }
         else
         {
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: unexpected character('%c') after a sparse value index"
@@ -814,7 +842,7 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
     }
 
     IncrementNumberOfErrorsOrDie();
-    if (m_traceLevel >= Warning)
+    if (m_hadWarnings = true, m_traceLevel >= Warning)
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -877,7 +905,7 @@ bool TextParser<ElemType>::TryReadUint64(size_t& value, size_t& bytesToRead)
         value = value * 10 + (c - '0');
         if (temp > value)
         {
-            if (m_traceLevel >= Warning)
+            if (m_hadWarnings = true, m_traceLevel >= Warning)
             {
                 fprintf(stderr,
                     "WARNING: size_t overflow while reading a uint64"
@@ -891,7 +919,7 @@ bool TextParser<ElemType>::TryReadUint64(size_t& value, size_t& bytesToRead)
         --bytesToRead;
     }
 
-    if (m_traceLevel >= Warning)
+    if (m_hadWarnings = true, m_traceLevel >= Warning)
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -937,7 +965,7 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_traceLevel >= Warning)
+                if (m_hadWarnings = true, m_traceLevel >= Warning)
                 {
                     fprintf(stderr,
                         "WARNING: unexpected prefix('%c') while reading a floating point value"
@@ -955,7 +983,7 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_traceLevel >= Warning)
+                if (m_hadWarnings = true, m_traceLevel >= Warning)
                 {
                     fprintf(stderr,
                         "WARNING: a sign symbol is followed by an unexpected character('%c')"
@@ -1040,7 +1068,7 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_traceLevel >= Warning)
+                if (m_hadWarnings = true, m_traceLevel >= Warning)
                 {
                     fprintf(stderr,
                         "WARNING: the exponent symbol is followed by an unexpected character('%c')"
@@ -1059,7 +1087,7 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_traceLevel >= Warning)
+                if (m_hadWarnings = true, m_traceLevel >= Warning)
                 {
                     fprintf(stderr,
                         "WARNING: an exponent sign symbol is followed by an unexpected character('%c')"
@@ -1090,12 +1118,13 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
         --bytesToRead;
     }
 
-    if (m_traceLevel >= Warning)
+    if (m_hadWarnings = true, m_traceLevel >= Warning)
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
             " while reading  a floating point value"
-            " at the offset = %" PRId64 "\n", GetFileOffset());
+            " at the offset = %" PRId64 "\n"
+            "Possibly, a trailing newline is missing.", GetFileOffset());
     }
 
     return false;

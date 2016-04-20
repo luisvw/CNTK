@@ -108,6 +108,7 @@ private:
     size_t m_chunkSizeBytes;
     unsigned int m_chunkCacheSize; // number of chunks to keep in the memory
     unsigned int m_traceLevel;
+    bool m_hadWarnings;
     unsigned int m_numAllowedErrors;
     bool m_skipSequenceIds;
 
@@ -118,6 +119,10 @@ private:
     // throws runtime exception when number of parsing errors is 
     // greater than the specified threshold
     void IncrementNumberOfErrorsOrDie();
+
+    // prints a messages that there were warnings which might
+    // have been swallowed.
+    void PrintWarningNotification();
 
     void SetFileOffset(int64_t position);
 

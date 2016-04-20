@@ -216,25 +216,6 @@ BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_50x20_jagged_sequences_dense)
         1);
 };
 
-
-// 1 sequence with 2 samples for each of 3 inputs
-BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_edge_cases_1)
-{
-    HelperRunReaderTest<double>(
-        testDataPath() + "/Config/CNTKTextFormatReader/dense.cntk",
-        testDataPath() + "/Control/CNTKTextFormatReader/edge_cases_1.txt",
-        testDataPath() + "/Control/CNTKTextFormatReader/edge_cases_1_Output.txt",
-        "edge_cases_1",
-        "reader",
-        2,  // epoch size
-        2,  // mb size  
-        1,  // num epochs
-        3,
-        0,
-        0,
-        1);
-};
-
 // 1 single sample sequence
 BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_1x1_sparse)
 {
@@ -390,6 +371,112 @@ BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_100x100_jagged_sparse)
         true);
 };
 
+
+// 1 sequence with 2 samples for each of 3 inputs
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_space_separated)
+{
+    HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/space_separated.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/space_separated_Output.txt",
+        "space_separated",
+        "reader",
+        2,  // epoch size
+        2,  // mb size  
+        1,  // num epochs
+        3,
+        0,
+        0,
+        1);
+};
+
+
+
+// 1 sequences with 1 sample/input, the last sequence is not well-formed 
+// (trailing '\n' is missing)
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_missing_trailing_newline)
+{
+    BOOST_REQUIRE_EXCEPTION(
+        HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/missing_trailing_newline.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/missing_trailing_newline_Output.txt",
+        "missing_trailing_newline",
+        "reader",
+        2,  // epoch size
+        2,  // mb size  
+        1,  // num epochs
+        1,
+        0,
+        0,
+        1),
+        std::runtime_error,
+        [](std::runtime_error const& ex)
+    {
+        return string("Reached maximum allowed number of reader errors") == ex.what();
+    });
+};
+
+// 1 sequences with 1 sample/input, the last sequence is not well-formed 
+// (trailing '\n' is missing)
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_missing_trailing_newline_ignored)
+{
+    HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        // the output file does not contain any samples from the ignored line
+        testDataPath() + "/Control/CNTKTextFormatReader/missing_trailing_newline.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/missing_trailing_newline_Output.txt",
+        "missing_trailing_newline_ignored",
+        "reader",
+        2,  // epoch size
+        2,  // mb size  
+        1,  // num epochs
+        1,
+        0,
+        0,
+        1);
+};
+
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_blank_lines)
+{
+    BOOST_REQUIRE_EXCEPTION(
+        HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/blank_lines.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/blank_lines_Output.txt",
+        "blank_lines",
+        "reader",
+        2,  // epoch size
+        2,  // mb size  
+        1,  // num epochs
+        1,
+        0,
+        0,
+        1),
+        std::runtime_error,
+        [](std::runtime_error const& ex)
+    {
+        return string("Reached maximum allowed number of reader errors") == ex.what();
+    });
+};
+
+
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_blank_lines_ignored)
+{
+    HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/blank_lines.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/blank_lines_Output.txt",
+        "blank_lines_ignored",
+        "reader",
+        3,  // epoch size
+        3,  // mb size  
+        1,  // num epochs
+        1,
+        0,
+        0,
+        1);
+};
 
 BOOST_AUTO_TEST_SUITE_END()
 

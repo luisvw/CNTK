@@ -1,0 +1,91 @@
+space_separated = [
+    precision = "double"
+    reader = [
+        readerType = "CNTKTextFormatReader"
+        # Training file contains 50 sequence with *up to* 20 samples each
+        file = "CNTKTextFormatReader/space_separated.txt"
+
+        input = [
+             features1 = [
+                alias = "F1"
+                dim = 15 
+                format = "dense"
+            ]
+
+            features2 = [
+                alias = "F2"         
+                dim = 12
+                format = "dense"
+            ]
+
+            features3 = [
+                alias = "F3"           
+                dim = 1
+                format = "dense"
+            ]
+        ]
+    ]
+]
+
+missing_trailing_newline = [
+    precision = "double"
+    reader = [
+        readerType = "CNTKTextFormatReader"
+        file = "CNTKTextFormatReader/missing_trailing_newline.txt"
+
+        input = [
+             features = [
+                dim = 1 
+                format = "dense"
+            ]
+        ]
+    ]
+]
+
+missing_trailing_newline_ignored = [
+    precision = "double"
+    reader = [
+        readerType = "CNTKTextFormatReader"
+        file = "CNTKTextFormatReader/missing_trailing_newline.txt"
+
+        maxErrors = 2 # a missing newline will trigger 2 errors
+
+        input = [
+             features = [
+                dim = 1 
+                format = "dense"
+            ]
+        ]
+    ]
+]
+
+blank_lines = [
+    precision = "double"
+    reader = [
+        readerType = "CNTKTextFormatReader"
+        file = "CNTKTextFormatReader/contains_blank_lines.txt"
+        skipSequenceIds = true
+        input = [
+             features = [
+                dim = 1 
+                format = "dense"
+            ]
+        ]
+    ]
+]
+
+blank_lines_ignored = [
+    precision = "double"
+    reader = [
+        readerType = "CNTKTextFormatReader"
+        file = "CNTKTextFormatReader/contains_blank_lines.txt"
+        maxErrors = 2
+        randomize = "none"
+        input = [
+             features = [
+                dim = 1 
+                format = "dense"
+            ]
+        ]
+    ]
+]

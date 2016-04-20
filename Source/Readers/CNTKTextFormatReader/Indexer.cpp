@@ -97,6 +97,18 @@ void Indexer::BuildFromLines()
             RefillBuffer();
         }
     }
+
+    if (m_pos != m_bufferEnd)
+    {
+        SequenceDescriptor sd = {};
+        sd.m_id = lines;
+        sd.m_numberOfSamples = 1;
+        sd.m_isValid = true;
+        sd.m_fileOffsetBytes = offset;
+        sd.m_byteSize = m_fileOffsetEnd - sd.m_fileOffsetBytes;
+        AddSequence(sd);
+    }
+
 }
 
 void Indexer::Build()
@@ -206,6 +218,11 @@ bool Indexer::TryGetSequenceId(size_t& id)
             if (c == VALUE_DELIMITER || c == COLUMN_DELIMITER || c == NAME_PREFIX)
             {
                 return found;
+            }
+            else if (!found && (c == ROW_DELIMITER || c == CARRIAGE_RETURN))
+            {
+                // empty line, skip over, parser will have to deal with it.
+                return false;
             }
 
             if (!isdigit(c))

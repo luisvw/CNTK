@@ -252,10 +252,22 @@
     <Text Include="Control\ImageReaderMultiView_Control.txt">
       <Filter>Control</Filter>
     </Text>
-    <Text Include="Data\CNTKTextFormatReader\edge_cases_1.txt">
+    <Text Include="Data\CNTKTextFormatReader\missing_trailing_newline.txt">
       <Filter>Data\CNTKTextFormatReader</Filter>
     </Text>
-    <Text Include="Control\CNTKTextFormatReader\edge_cases_1.txt">
+    <Text Include="Control\CNTKTextFormatReader\missing_trailing_newline.txt">
+      <Filter>Control\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Data\CNTKTextFormatReader\contains_blank_lines.txt">
+      <Filter>Data\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Data\CNTKTextFormatReader\space_separated.txt">
+      <Filter>Data\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Control\CNTKTextFormatReader\space_separated.txt">
+      <Filter>Control\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Control\CNTKTextFormatReader\blank_lines.txt">
       <Filter>Control\CNTKTextFormatReader</Filter>
     </Text>
   </ItemGroup>
@@ -303,6 +315,9 @@
     </None>
     <None Include="Config\ImageReaderMultiView_Config.cntk">
       <Filter>Config</Filter>
+    </None>
+    <None Include="Config\CNTKTextFormatReader\edge_cases.cntk">
+      <Filter>Config\CNTKTextFormatReader</Filter>
     </None>
   </ItemGroup>
 </Project>

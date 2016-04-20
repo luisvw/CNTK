@@ -1,8 +1,6 @@
 # deviceId = -1 for CPU, >= 0 for GPU devices
 deviceId = -1
 
-traceLevel = 1
-
 1x1 = [
     precision = "float"
     reader = [
@@ -12,9 +10,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/1x1_sparse.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -34,9 +29,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/1x2_sparse.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -56,9 +48,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/1x10_sparse.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -78,9 +67,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/10x10_sparse.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -101,9 +87,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/3x5_MI_sparse.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features1 = [
@@ -137,9 +120,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/20x10_MI_jagged_samples_sparse.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features1 = [
@@ -171,9 +151,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/50x20_jagged_sequences_sparse.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -194,9 +171,6 @@ traceLevel = 1
 
         randomize = "none"
         
-        #maxErrors = 0 -- default value
-        traceLevel = 1
-
         input = [
              features = [
                 alias = "F0"

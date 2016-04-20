@@ -1,8 +1,6 @@
 # deviceId = -1 for CPU, >= 0 for GPU devices
 deviceId = -1
 
-traceLevel = 1
-
 1x1 = [
     precision = "double"
     reader = [
@@ -12,9 +10,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/1x1_dense.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -34,9 +29,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/1x2_dense.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -56,9 +48,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/1x10_dense.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -80,10 +69,7 @@ traceLevel = 1
         file = "CNTKTextFormatReader/10x1_MI_dense.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
-        
+
         chunkSizeInBytes = 50000 # ~ 1/2 input size
         numChunksToCache = 1
 
@@ -138,9 +124,6 @@ traceLevel = 1
         file = "CNTKTextFormatReader/10x10_dense.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -162,10 +145,7 @@ traceLevel = 1
         file = "CNTKTextFormatReader/100x1_dense.txt"
 
         randomize = "auto"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
-        
+
         chunkSizeInBytes = 10000 # ~ 3 full sequences (30 samples)
         numChunksToCache = 5
 
@@ -193,10 +173,7 @@ MNIST = [
         file = "CNTKTextFormatReader/MNIST_dense.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
-        
+
         chunkSizeInBytes = 10000 # should be enough for ~ 10 samples.
         numChunksToCache = 10
 
@@ -225,9 +202,6 @@ Simple = [
 
         randomize = "none"
         
-        #maxErrors = 0 -- default value
-        traceLevel = 1
-        
         input = [
 
              features = [
@@ -254,9 +228,6 @@ Simple = [
         file = "CNTKTextFormatReader/50x20_jagged_sequences_dense.txt"
 
         randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
 
         input = [
              features = [
@@ -267,38 +238,3 @@ Simple = [
         ]
     ]
 ]
-
-edge_cases_1 = [
-    precision = "double"
-    reader = [
-        readerType = "CNTKTextFormatReader"
-        # Training file contains 50 sequence with *up to* 20 samples each
-        file = "CNTKTextFormatReader/edge_cases_1.txt"
-
-        randomize = "none"
-        
-        #maxErrors = 0 -- default value
-        traceLevel = 1
-
-        input = [
-             features1 = [
-                alias = "F1"
-                dim = 15 
-                format = "dense"
-            ]
-
-            features2 = [
-                alias = "F2"         
-                dim = 12
-                format = "dense"
-            ]
-
-            features3 = [
-                alias = "F3"           
-                dim = 1
-                format = "dense"
-            ]
-        ]
-    ]
-]
-
