@@ -12,7 +12,7 @@ from cntk.ops.cntk1 import Exp, RectifiedLinear, Sigmoid, Softmax, Tanh
 
 def rectified_linear(x, name=None):
     """
-    computes the element-wise rectified linear of `x`: `max(x, 0)`
+    computes the element-wise rectified linear of `x`: ``max(x, 0)``
 
     Args:
         x: any :class:`cntk.graph.ComputationNode` that outputs a tensor
@@ -48,11 +48,15 @@ def tanh(x, name=None):
     """
     return Tanh(x, var_name=name)
 
-def softmax(x, name=None):
+def softmax(X, name=None):
     """
-    computes the element-wise sigmoid of `x`: 
+    computes the element-wise sigmoid of `X`: 
 
-    :math:`softmax(X) = {\exp(X_ \over {1+\exp(-x)}}`
+    :math:`softmax(x) = {\exp(x) - \max_{x \in X}(\exp(x)) \over {\sum_{x \in
+    X} \exp(x)- \max_{x \in X}(\exp(x)) }}`
+
+    The term :math:`\max_{x \in X}(\exp(x))` is subtracted for numerical
+    stability.
 
     Args:
         x: any :class:`cntk.graph.ComputationNode` that outputs a tensor
@@ -60,7 +64,7 @@ def softmax(x, name=None):
     Returns:
         :class:`cntk.graph.ComputationNode`
     """
-    return Softmax(x, var_name=name)
+    return Softmax(X, var_name=name)
 
 def exp(x, name=None):
     """
