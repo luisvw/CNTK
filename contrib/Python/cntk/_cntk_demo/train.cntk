@@ -1,0 +1,58 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+command=Train
+
+modelPath="E:\src\cntk_a\cntk\contrib\Python\cntk\_cntk_demo\Models\demo"
+deviceId=-1
+precision="float"
+
+Train=[
+    action="train"
+    run=BrainScriptNetworkBuilder
+
+    BrainScriptNetworkBuilder=[
+        v0 = Input(3, tag='feature')
+        v1 = LearnableParameter(3, 2, learningRateMultiplier=1.0, init='uniform', initValueScale=1, value=0, initFromFilePath='', initFromLiteral='', initOnCPUOnly=true, randomSeed=-1)
+        v2 = Input(2, tag='feature')
+        v3 = Times(v1, v2, outputRank=1)
+        v4 = LearnableParameter(3, 1, learningRateMultiplier=1.0, init='uniform', initValueScale=1, value=0, initFromFilePath='', initFromLiteral='', initOnCPUOnly=true, randomSeed=-1)
+        v5 = Plus(v3, v4, tag='output')
+        v6 = ReconcileMBLayout(v5, v0)
+        crit_node = CrossEntropyWithSoftmax(v0, v6, tag='criterion')
+        eval_node = SquareError(v0, v6, tag='eval')
+    ]
+    
+    SGD = [
+learningRatesPerMB = 0.1
+momentumPerMB = 0.9
+minibatchSize = 25
+maxEpochs = 3
+epochSize = 0
+
+    ]
+    
+    reader = [
+        traceLevel = 2
+        readerType = "UCIFastReader"
+        file = "E:\src\cntk_a\cntk\contrib\Python\cntk\examples\LogReg\Train-3Classes.txt"
+        randomize = "none"
+        verbosity = 1
+
+        v0 = [
+            start = 2
+            dim = 1
+                        labelDim= 2
+                            labelMappingFile= "E:\src\cntk_a\cntk\contrib\Python\cntk\examples\LogReg\SimpleMapping-3Classes.txt"
+                
+        ]
+
+        v2 = [
+            start = 0
+            dim = 2
+            
+        ]
+    ]            
+
+]
+

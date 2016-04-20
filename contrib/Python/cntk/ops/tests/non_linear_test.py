@@ -11,7 +11,7 @@ the forward and the backward pass
 
 import numpy as np
 import pytest
-from .ops_test_utils import unittest_helper, C, AA, I, precision
+from .ops_test_utils import unittest_helper, C, AA, I, precision, PRECISION_TO_TYPE
 from ...graph import *
 from ...reader import *
 from ..non_linear import if_then_else
@@ -29,9 +29,9 @@ def test_op_if_then_else(cond, value_a, value_b, device_id, precision):
 
     #Forward pass test
     #==================
-    # we compute the expected output for the forward pass
     # Comparing to numpy's implementation of where(...)
-    expected = [[[np.where(AA(cond), AA(value_a), AA(value_b))]]]
+
+    expected = [[[np.where(AA(cond, dtype=PRECISION_TO_TYPE[precision]), AA(value_a, dtype=PRECISION_TO_TYPE[precision]), AA(value_b, dtype=PRECISION_TO_TYPE[precision]))]]]
 
     cond_as_const    = C([cond])
     value_a_as_const = C([value_a])    
@@ -45,26 +45,26 @@ def test_op_if_then_else(cond, value_a, value_b, device_id, precision):
     unittest_helper(result, None, expected, device_id=device_id, 
                     precision=precision, clean_up=True, backward_pass=False)
 					
-    
-					
 	#Backward pass test
     #==================
-    # The gradient of the if_then_else() function is zero for the first argument.
-	# The gradient for seconf and thrird argument depends on the first.
-	# gradient of second argument = gradient of input if cond else 0
-	# gradient of third argument  = gradient of input if not cond else 0
+    # The derivative of the if_then_else() function is zero for the first argument.
+	# The derivative for second and thrird argument depends on the first:
+	# * Derivative of second argument = derivative of input if cond else 0
+	# * Derivative of third argument  = derivative of input if not cond else 0
 
     # Derivative for first parameter should always be zero
-    expected_first  = [[[np.zeros_like(x) for x in cond]]]
-    unittest_helper(result, None, expected_first, device_id=device_id, 
+    expected  = [[[np.zeros_like(x) for x in cond]]]
+    unittest_helper(result, None, expected, device_id=device_id, 
                     precision=precision, clean_up=True, backward_pass=True, input_node=cond_as_input)
 
-    expected_second = [[np.array(np.where(cond, 1, 0), dtype=float)]]
+    # Derivative of second parameter depends on cond
+    expected = [[np.array(np.where(cond, 1, 0), dtype=PRECISION_TO_TYPE[precision])]]
     result = if_then_else(cond_as_const, value_a_as_input, value_b_as_const)
-    unittest_helper(result, None, expected_second, device_id=device_id, 
+    unittest_helper(result, None, expected, device_id=device_id, 
                     precision=precision, clean_up=True, backward_pass=True, input_node=value_a_as_input)
 
-    expected_third = [[np.array(np.where(cond, 0, 1), dtype=float)]]
+    # Derivative of third parameter depends on cond
+    expected = [[np.array(np.where(cond, 0, 1), dtype=PRECISION_TO_TYPE[precision])]]
     result = if_then_else(cond_as_const, value_a_as_const, value_b_as_input)
-    unittest_helper(result, None, expected_third, device_id=device_id, 
+    unittest_helper(result, None, expected, device_id=device_id, 
                     precision=precision, clean_up=True, backward_pass=True, input_node=value_b_as_input)

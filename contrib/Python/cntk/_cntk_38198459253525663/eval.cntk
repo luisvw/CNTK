@@ -1,0 +1,50 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+command=Eval
+deviceId=-1
+precision="float"
+
+Eval=[
+    action="write"
+    nodeUnitTest=True
+    run=BrainScriptNetworkBuilder
+
+    BrainScriptNetworkBuilder=[
+        v0 = ParameterTensor(1:1, learningRateMultiplier=0.0, init='fromLiteral', initValueScale=1, value=0, initFromFilePath='', initFromLiteral='10.0000
+', initOnCPUOnly=true, randomSeed=-1)
+        v1 = ParameterTensor(1:1, learningRateMultiplier=0.0, init='fromLiteral', initValueScale=1, value=0, initFromFilePath='', initFromLiteral='0.0000
+', initOnCPUOnly=true, randomSeed=-1)
+        v2 = Input(1, tag='feature')
+        v3 = If(v0, v1, v2, tag='output')
+    ]
+    
+ 
+        reader = [
+            traceLevel = 2
+            readerType = "CNTKTextFormatReader"
+            file = "E:\src\cntk_a\cntk\contrib\Python\cntk\_cntk_default\_input_fk1tejd7.txt"                
+        
+                input = [
+            
+                v2=[
+                    alias = "_I_404"                
+                    dim = 1          
+                    format = "Dense"
+                ]
+            ]
+        ]
+            
+    
+
+    format = [
+        # %x = shape, %d = sequenceId
+        sequencePrologue=%d\t|w.shape %x\n%d\t|w\s
+        sampleSeparator=\n%d\t|w\s
+        elementSeparator=\s
+    ]
+
+    outputPath = "E:\src\cntk_a\cntk\contrib\Python\cntk\_cntk_38198459253525663\out.txt"
+]
+
+

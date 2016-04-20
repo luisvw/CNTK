@@ -1,0 +1,9 @@
+============================= test session starts =============================
+platform win32 -- Python 3.5.1, pytest-2.8.5, py-1.4.31, pluggy-0.3.1
+rootdir: E:\src\cntk_a\cntk\contrib\Python\cntk, inifile: pytest.ini
+collected 81 items
+
+ops\tests\non_linear_test.py ......
+
+===================== 75 tests deselected by '-kif_then' ======================
+=================== 6 passed, 75 deselected in 9.89 seconds ===================
