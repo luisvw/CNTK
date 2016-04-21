@@ -221,7 +221,10 @@ struct ReaderFixture
     // numLabelFiles        : the number of label files used (multi IO)
     // subsetNum            : the subset number for parallel trainings
     // numSubsets           : the number of parallel trainings (set to 1 for single)
-    // sparse               : when true use sparse matrix type, dense otherwise
+    // sparseFetures        : indicated whether the corresponding matrix type should be set to sparse or not
+    // sparseLabels         : same as above, but for labels
+    // useSharedLayout      : if false, an individual layout is created for each input
+
     template <class ElemType>
     void HelperRunReaderTest(
         string configFileName,
@@ -236,7 +239,9 @@ struct ReaderFixture
         size_t numLabelFiles,
         size_t subsetNum,
         size_t numSubsets,
-        bool sparse = false)
+        bool sparseFeatures = false,
+        bool sparseLabels = false,
+        bool useSharedLayout = false)
     {
         std::wstring configFN(configFileName.begin(), configFileName.end());
         std::wstring configFileCommand(L"configFile=" + configFN);
@@ -262,20 +267,28 @@ struct ReaderFixture
         for (auto i = 0; i < numFeatureFiles; i++)
         {
             features.push_back(make_shared<Matrix<ElemType>>(0));
-            if (sparse)
+            if (sparseFeatures)
             {
                 features.back()->SwitchToMatrixType(MatrixType::SPARSE, MatrixFormat::matrixFormatSparseCSC, false);
             }
             wstring name = numFeatureFiles > 1 ? L"features" + std::to_wstring(i + 1) : L"features";
+            if (!useSharedLayout)
+            {
+                pMBLayout = make_shared<MBLayout>(1, 0, L"F" + std::to_wstring(i + 1));
+            }
             map.insert(make_pair(name, StreamMinibatchInputs::Input(features[i], pMBLayout, TensorShape())));
         }
 
         for (auto i = 0; i < numLabelFiles; i++)
         {
             labels.push_back(make_shared<Matrix<ElemType>>(0));
-            if (sparse)
+            if (sparseLabels)
             {
                 labels.back()->SwitchToMatrixType(MatrixType::SPARSE, MatrixFormat::matrixFormatSparseCSC, false);
+            }
+            if (!useSharedLayout)
+            {
+                pMBLayout = make_shared<MBLayout>(1, 0, L"L" + std::to_wstring(i + 1));
             }
             wstring name = numLabelFiles > 1 ? L"labels" + std::to_wstring(i + 1) : L"labels";
             map.insert(make_pair(name, StreamMinibatchInputs::Input(labels[i], pMBLayout, TensorShape())));

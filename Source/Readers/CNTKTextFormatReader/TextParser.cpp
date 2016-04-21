@@ -401,7 +401,7 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
         size_t id;
         if (!TryReadUint64(id, bytesToRead) || id != sequenceDsc.m_id) 
         {
-            RuntimeError("Did not find the expected sequence id ( %" PRIu64 ") "
+            RuntimeError("Did not find the expected sequence (id = %" PRIu64 ") "
                 " at the file offset = %" PRId64 "\n", sequenceDsc.m_id, GetFileOffset());
         }
     }
@@ -432,7 +432,7 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
         else 
         {
             IncrementNumberOfErrorsOrDie();
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
+            if (ShouldWarn())
             {
                 fprintf(stderr,
                     "WARNING: could not read a row (# %" PRIu64 ")"
@@ -443,15 +443,57 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
 
         if (!bytesToRead && numRowsRead < expectedRowCount)
         {
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
+            if (ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: exhausted all expected input"
-                    " expected for the current sequence (id = %" PRIu64 ")"
-                    " at the offset = %" PRId64 "\n", sequenceDsc.m_id, GetFileOffset());
+                    "WARNING: exhausted all input"
+                    " expected for the current sequence (id = %" PRIu64 "),"
+                    " but only read %" PRId64 " out of %" PRId64 " expected rows,"
+                    " at the offset = %" PRId64 "\n", 
+                    sequenceDsc.m_id, numRowsRead, expectedRowCount, GetFileOffset());
             }
             break;
         }
+    }
+
+    // Double check if there are empty input streams.
+    // TODO this handling needs to be graceful, but currently CNTK complains when we return empty sequences.
+    bool hasEmptyInputs = false, hasDuplicateInputs = false;
+
+    for (size_t i = 0; i < sequence.size(); ++i)
+    {
+        if (sequence[i]->m_numberOfSamples == 0)
+        {
+            fprintf(stderr,
+                "ERROR: while reading sequence id = %" PRIu64
+                " at file offset = %" PRId64 ": input '%ls' is empty.\n", 
+                sequenceDsc.m_id, GetFileOffset(), m_streams[i]->m_name.c_str());
+            hasEmptyInputs = true;
+        }
+
+        if (sequence[i]->m_numberOfSamples > expectedRowCount) 
+        {
+            hasDuplicateInputs = true;
+            if (ShouldWarn())
+            {
+                fprintf(stderr,
+                    "WARNING: input '%ls' in sequence"
+                    " (id = %" PRIu64 ", file offset = %" PRId64 ")"
+                    " contains more samples than expected (%" PRId64 " vs. %" PRId64 ").\n",
+                    m_streams[i]->m_name.c_str(), sequenceDsc.m_id, GetFileOffset(), 
+                    sequence[i]->m_numberOfSamples, expectedRowCount);
+            } 
+        }
+    }
+
+    if (hasEmptyInputs)
+    {
+        RuntimeError("Could not read input file. Bailing out.");
+    }
+
+    if (hasDuplicateInputs)
+    {
+        IncrementNumberOfErrorsOrDie();
     }
 
     if (m_traceLevel >= Info)
@@ -462,41 +504,27 @@ typename TextParser<ElemType>::SequenceBuffer TextParser<ElemType>::LoadSequence
             sequenceDsc.m_id, numRowsRead, expectedRowCount);
     }
 
-    // Double check if there are empty input streams.
-    // TODO this handling needs to be graceful, but currently CNTK complains when we return empty sequences.
-    bool hasEmptyInputs = false;
-
-    for (size_t i = 0; i < sequence.size(); ++i)
-    {
-        if (sequence[i]->m_numberOfSamples == 0)
-        {
-            fprintf(stderr,
-                "ERROR: While reading input %" PRIu64 ""
-                " in sequence id = %" PRIu64
-                " at file offset = %" PRId64 ": Input is empty.\n", i + 1, sequenceDsc.m_id, GetFileOffset());
-            hasEmptyInputs = true;
-        }
-    }
-
-    if (hasEmptyInputs)
-    {
-        RuntimeError("Could not read input file. Bailing out.");
-    }
-
     return sequence;
 }
 
 template <class ElemType>
 bool TextParser<ElemType>::TryReadRow(SequenceBuffer& sequence, size_t& bytesToRead)
 {
-    bool found = false;
+    while (bytesToRead && CanRead() && isdigit(*m_pos))
+    {
+        // skip sequence ids
+        ++m_pos;
+        --bytesToRead;
+    }
+
+    size_t numSampleRead = 0;
     while (bytesToRead && CanRead())
     {
         char c = *m_pos;
 
-        if (isdigit(c) || c == COLUMN_DELIMITER || c == VALUE_DELIMITER || c == CARRIAGE_RETURN)
+        if (c == COLUMN_DELIMITER || c == VALUE_DELIMITER || c == CARRIAGE_RETURN)
         {
-            // skip sequence ids, column separators and CRs.
+            // skip column and value separators, as well as carriage returns.
             ++m_pos;
             --bytesToRead;
             continue;
@@ -508,109 +536,62 @@ bool TextParser<ElemType>::TryReadRow(SequenceBuffer& sequence, size_t& bytesToR
             ++m_pos;
             --bytesToRead;
 
-            if (!found && (m_hadWarnings = true, m_traceLevel >= Warning))
+            if (numSampleRead == 0 && ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: found an empty line while reading an input row"
-                    " at the offset = %" PRId64 "\n", GetFileOffset());
-            }
-
-            return found;
-        }
-
-        size_t id;
-        if (!TryGetInputId(id, bytesToRead))
-        {
-            IncrementNumberOfErrorsOrDie();
-            SkipToNextInput(bytesToRead);
-            continue;
-        }
-
-        const StreamInfo& stream = m_streamInfos[id];
-
-        if (stream.m_type == StorageType::dense)
-        {
-            DenseInputStreamBuffer* data = reinterpret_cast<DenseInputStreamBuffer*>(sequence[id].get());
-            vector<ElemType>& values = data->m_buffer;
-            size_t size = values.size();
-            assert(size % stream.m_sampleDimension == 0);
-            if (!TryReadDenseSample(values, stream.m_sampleDimension, bytesToRead))
+                    "WARNING: input row (file offset = %" PRId64 ") is empty.\n", 
+                    GetFileOffset());
+            } 
+            else if (numSampleRead > m_streams.size() && ShouldWarn())
             {
-                // expected a dense sample, but was not able to fully read it, ignore it.
-                if (values.size() != size)
-                {
-                    //clean up the buffer
-                    values.resize(size);
-                }
-                IncrementNumberOfErrorsOrDie();
-                SkipToNextInput(bytesToRead);
-                continue;
+                fprintf(stderr,
+                    "WARNING: input row (file offset = %" PRId64 ") contains more"
+                    " samples than expected (%" PRId64 " vs. %" PRId64 ").\n", 
+                    GetFileOffset(), numSampleRead, m_streams.size());
             }
-            // everything went well, increment the number of samples.
-            ++data->m_numberOfSamples;
+
+            return numSampleRead > 0;
+        }
+
+        if (TryReadSample(sequence, bytesToRead))
+        {
+            numSampleRead++;
         }
         else
         {
-            SparseInputStreamBuffer* data = reinterpret_cast<SparseInputStreamBuffer*>(sequence[id].get());
-            vector<ElemType>& values = data->m_buffer;
-            vector<IndexType>& indices = data->m_indices;
-            assert(values.size() == indices.size());
-            size_t size = values.size();
-            if (!TryReadSparseSample(values, indices, bytesToRead))
-            {
-                // expected a sparse sample, but something went south, ignore it.
-                if (values.size() != size)
-                {
-                    //clean up the buffer
-                    values.resize(size);
-                }
-                if (indices.size() != size)
-                {
-                    //clean up the buffer
-                    indices.resize(size);
-                }
-
-                IncrementNumberOfErrorsOrDie();
-                SkipToNextInput(bytesToRead);
-                continue;
-            }
-            assert(values.size() == indices.size());
-            ++data->m_numberOfSamples;
-            IndexType count = static_cast<IndexType>(values.size() - size);
-            data->m_nnzCounts.push_back(count);
-            data->m_totalNnzCount += count;
+            // skip over until the next sample/end of row
+            SkipToNextInput(bytesToRead);
         }
-
-        found |= true;
     }
 
-    if (m_hadWarnings = true, m_traceLevel >= Warning)
+    if (ShouldWarn())
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
             " while reading an input row"
-            " at the offset = %" PRId64 "\n", GetFileOffset());
+            " at the offset = %" PRId64 "."
+            " Possibly, a trailing newline is missing.\n", GetFileOffset());
     }
     return false;
 }
 
+// Reads one sample (an pipe-prefixed input identifier followed by a list of values)
 template <class ElemType>
-bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
+bool TextParser<ElemType>::TryReadSample(SequenceBuffer& sequence, size_t& bytesToRead)
 {
-    char* scratchIndex = m_scratch.get();
-
-    char c = *m_pos;
+    assert(m_pos < m_bufferEnd);
 
     // prefix check.
-    if (c != NAME_PREFIX)
+    if (*m_pos != NAME_PREFIX)
     {
-        if (m_hadWarnings = true, m_traceLevel >= Warning)
+        if (ShouldWarn())
         {
             fprintf(stderr,
                 "WARNING: unexpected character('%c') in place of a name prefix ('%c')"
                 " while reading an input name"
-                " at the offset = %" PRId64 "\n", c, NAME_PREFIX, GetFileOffset());
+                " at the offset = %" PRId64 "\n", *m_pos, NAME_PREFIX, GetFileOffset());
         }
+        IncrementNumberOfErrorsOrDie();
         return false;
     }
 
@@ -618,9 +599,85 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
     ++m_pos;
     --bytesToRead;
 
+    if (bytesToRead && CanRead() && *m_pos == NAME_PREFIX)
+    {
+        // Two consequent pipe symbols (||) treated as an escape sequence.        
+        ++m_pos;
+        --bytesToRead;
+        return false;
+    }
+
+    size_t id;
+    if (!TryGetInputId(id, bytesToRead))
+    {
+        IncrementNumberOfErrorsOrDie();
+        return false;
+    }
+
+    const StreamInfo& stream = m_streamInfos[id];
+
+    if (stream.m_type == StorageType::dense)
+    {
+        DenseInputStreamBuffer* data = reinterpret_cast<DenseInputStreamBuffer*>(sequence[id].get());
+        vector<ElemType>& values = data->m_buffer;
+        size_t size = values.size();
+        assert(size % stream.m_sampleDimension == 0);
+        if (!TryReadDenseSample(values, stream.m_sampleDimension, bytesToRead))
+        {
+            // expected a dense sample, but was not able to fully read it, ignore it.
+            if (values.size() != size)
+            {
+                //clean up the buffer
+                values.resize(size);
+            }
+            IncrementNumberOfErrorsOrDie();
+            return false;
+        }
+        // everything went well, increment the number of samples.
+        ++data->m_numberOfSamples;
+    }
+    else
+    {
+        SparseInputStreamBuffer* data = reinterpret_cast<SparseInputStreamBuffer*>(sequence[id].get());
+        vector<ElemType>& values = data->m_buffer;
+        vector<IndexType>& indices = data->m_indices;
+        assert(values.size() == indices.size());
+        size_t size = values.size();
+        if (!TryReadSparseSample(values, indices, bytesToRead))
+        {
+            // expected a sparse sample, but something went south, ignore it.
+            if (values.size() != size)
+            {
+                //clean up the buffer
+                values.resize(size);
+            }
+            if (indices.size() != size)
+            {
+                //clean up the buffer
+                indices.resize(size);
+            }
+
+            IncrementNumberOfErrorsOrDie();
+            return false;
+        }
+        assert(values.size() == indices.size());
+        ++data->m_numberOfSamples;
+        IndexType count = static_cast<IndexType>(values.size() - size);
+        data->m_nnzCounts.push_back(count);
+        data->m_totalNnzCount += count;
+    }
+
+    return true;
+}
+
+template <class ElemType>
+bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
+{
+    char* scratchIndex = m_scratch.get();
+
     while (bytesToRead && CanRead())
     {
-        c = *m_pos;
+        char c = *m_pos;
 
         // an input id can be followed by a value marker, end of line (also, carriage return),
         // column separator or the name prefix of the following input.
@@ -636,20 +693,23 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
                     id = it->second;
                     return true;
                 }
-                else if (m_hadWarnings = true, m_traceLevel >= Warning)
+                
+                if (ShouldWarn())
                 {
                     fprintf(stderr,
-                        "WARNING: an invalid input name ('%s')"
+                        "WARNING: found an invalid input name ('%s')"
                         " while reading an input name"
                         " at the offset = %" PRId64 "\n", name.c_str(), GetFileOffset());
                 }
             }
-            else if (m_hadWarnings = true, m_traceLevel >= Warning)
+            else if (ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: a name prefix is immediately  followed by a delimiter"
+                    "WARNING: encountered a name prefix ('%c') followed by"
+                    " an unexpected character ('%c')"
                     " while reading an input name"
-                    " at the offset = %" PRId64 "\n", GetFileOffset());
+                    " at the offset = %" PRId64 "\n", 
+                    NAME_PREFIX, c, GetFileOffset());
             }
 
             return false;
@@ -663,10 +723,10 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
         {
             // the current string length is already equal to the maximum expected length,
             // yet it's not followed by a delimiter.
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
+            if (ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: was not able to find an input name"
+                    "WARNING: was not able to find a valid input name"
                     " at the offset = %" PRId64 "\n", GetFileOffset());
             }
             return false;
@@ -676,7 +736,7 @@ bool TextParser<ElemType>::TryGetInputId(size_t& id, size_t& bytesToRead)
         --bytesToRead;
     }
 
-    if (m_hadWarnings = true, m_traceLevel >= Warning)
+    if (ShouldWarn())
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -699,31 +759,35 @@ bool TextParser<ElemType>::TryReadDenseSample(vector<ElemType>& values, size_t s
         // return as soon as we hit a non-printable or a name prefix
         if (c < VALUE_DELIMITER || c == NAME_PREFIX)
         {
-            // TODO: 
-            // if (counter > sampleSize) -- drop the extra elements?
-            // increment the number of errors by the diff(sampleSize and counter)
-            // and return true?
-            // what if counter == 0?
-
             if (counter > sampleSize)
             {
-                if (m_hadWarnings = true, m_traceLevel >= Warning)
+                if (ShouldWarn())
                 {
                     fprintf(stderr,
-                        "WARNING: Encountered a sample (size = %" PRId64 ")"
+                        "WARNING: encountered a sample (size = %" PRId64 ")"
                         " exceeding the expected size of %" PRId64 " at the offset  %" PRId64,
                         counter, sampleSize, GetFileOffset());
                 }
                 return false;
             }
 
-            while (counter < sampleSize)
+            // For dense matrices, it should be possible to input only the left part
+            // if the suffix is sparse. Fill up the rest with zeros.
+            if (counter < sampleSize)
             {
-                // For dense matrices, it should be possible to input only the left part
-                // if the suffix is sparse. Fill up the rest with zeros.
-                values.push_back(0.0f);
-                ++counter;
+                if (ShouldWarn())
+                {
+                    fprintf(stderr,
+                        "WARNING: encountered a dense sample (size = %" PRId64 ")"
+                        " with a sparse suffix (size = %" PRId64 ") at the offset  %" PRId64,
+                        sampleSize, counter, GetFileOffset());
+                }
+                for (; counter < sampleSize; ++counter)
+                {
+                    values.push_back(0.0f);
+                }
             }
+           
 
             return true;
         }
@@ -747,7 +811,7 @@ bool TextParser<ElemType>::TryReadDenseSample(vector<ElemType>& values, size_t s
     }
 
     IncrementNumberOfErrorsOrDie();
-    if (m_hadWarnings = true, m_traceLevel >= Warning)
+    if (ShouldWarn())
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -760,7 +824,7 @@ bool TextParser<ElemType>::TryReadDenseSample(vector<ElemType>& values, size_t s
 template <class ElemType>
 bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, std::vector<IndexType>& indices, size_t& bytesToRead)
 {
-    size_t index;
+    size_t index = 0, counter = 0;
     ElemType value;
 
     while (bytesToRead && CanRead())
@@ -770,7 +834,14 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
         // return as soon as we hit a non-printable or a name prefix
         if (c < VALUE_DELIMITER || c == NAME_PREFIX)
         {
-            // empty sparse samples are allowed ("|InputeName_1|InputName2...")
+            // empty sparse samples are allowed ("|InputeName_1|InputName2..."),
+            // print a warning just in case.
+            if (counter == 0 && ShouldWarn())
+            {
+                fprintf(stderr,
+                    "WARNING: encountered an empty sparse sample at the offset  %" PRId64 "\n",
+                    GetFileOffset());
+            }
             return true;
         }
 
@@ -788,24 +859,15 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
             // bail out.
             return false;
         } 
+
         if (index > numeric_limits<IndexType>::max())
         {
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
+            if (ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: sparse index value(%" PRIu64 ") exceeds the maximum allowed "
-                    " value (%" PRIu64 ")\n", index, (size_t)numeric_limits<IndexType>::max());
-            }
-            // bail out.
-            return false;
-        }
-        if (index > numeric_limits<IndexType>::max())
-        {
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
-            {
-                fprintf(stderr,
-                    "WARNING: sparse index value(%" PRIu64 ") exceeds the maximum allowed "
-                    " value (%" PRIu64 ")\n", index, (size_t)numeric_limits<IndexType>::max());
+                    "WARNING: sparse index value (%" PRIu64 ") at the offset = %" PRId64 
+                    " exceeds the maximum allowed value (%" PRIu64 ")\n", 
+                    index, GetFileOffset(), (size_t)numeric_limits<IndexType>::max());
             }
             // bail out.
             return false;
@@ -813,22 +875,22 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
 
         // an index must be followed by a delimiter
         c = *m_pos;
-        if (c == INDEX_DELIMITER)
+        if (c != INDEX_DELIMITER)
         {
-            // consume index delimiter
-            ++m_pos;
-            --bytesToRead;
-        }
-        else
-        {
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
+            if (ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: unexpected character('%c') after a sparse value index"
-                    " at the offset = %" PRId64 "\n", c, GetFileOffset());
+                    "WARNING: encountered an unexpected character('%c')"
+                    " in place of the index delimiter ('%c')"
+                    " after a sparse value index at the offset = %" PRId64 "\n", 
+                    c, INDEX_DELIMITER, GetFileOffset());
             }
             return false;
         }
+
+        // skip index delimiter
+        ++m_pos;
+        --bytesToRead;
 
         // read the corresponding value
         if (!TryReadRealNumber(value, bytesToRead))
@@ -839,10 +901,10 @@ bool TextParser<ElemType>::TryReadSparseSample(std::vector<ElemType>& values, st
 
         values.push_back(value);
         indices.push_back(static_cast<IndexType>(index));
+        counter++;
     }
 
-    IncrementNumberOfErrorsOrDie();
-    if (m_hadWarnings = true, m_traceLevel >= Warning)
+    if (ShouldWarn())
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -905,10 +967,10 @@ bool TextParser<ElemType>::TryReadUint64(size_t& value, size_t& bytesToRead)
         value = value * 10 + (c - '0');
         if (temp > value)
         {
-            if (m_hadWarnings = true, m_traceLevel >= Warning)
+            if (ShouldWarn())
             {
                 fprintf(stderr,
-                    "WARNING: size_t overflow while reading a uint64"
+                    "WARNING: detected an overflow while reading a uint64"
                     " at the offset = %" PRId64 "\n", GetFileOffset());
             }
 
@@ -919,7 +981,7 @@ bool TextParser<ElemType>::TryReadUint64(size_t& value, size_t& bytesToRead)
         --bytesToRead;
     }
 
-    if (m_hadWarnings = true, m_traceLevel >= Warning)
+    if (ShouldWarn())
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
@@ -965,10 +1027,11 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_hadWarnings = true, m_traceLevel >= Warning)
+                if (ShouldWarn())
                 {
                     fprintf(stderr,
-                        "WARNING: unexpected prefix('%c') while reading a floating point value"
+                        "WARNING: encountered an unexpected prefix('%c')"
+                        " while reading a floating point value"
                         " at the offset = %" PRId64 "\n", c, GetFileOffset());
                 }
                 return false;
@@ -983,10 +1046,10 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_hadWarnings = true, m_traceLevel >= Warning)
+                if (ShouldWarn())
                 {
                     fprintf(stderr,
-                        "WARNING: a sign symbol is followed by an unexpected character('%c')"
+                        "WARNING: encountered a sign symbol followed by an unexpected character('%c')"
                         " while reading a floating point value"
                         " at the offset = %" PRId64 "\n", c, GetFileOffset());
                 }
@@ -1032,9 +1095,20 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             if (isdigit(c))
             {
                 // TODO: ignore if number of precision digits > FLT_DIG/DBL_DIG
-                // or check for overflows.
                 // no state change
+                auto temp = number;
                 number = number * 10 + (c - '0');
+                if (temp > number)
+                {
+                    if (ShouldWarn())
+                    {
+                        fprintf(stderr,
+                            "WARNING: detected an overflow while reading a floating point value"
+                            " at the offset = %" PRId64 "\n", GetFileOffset());
+                    }
+
+                    return false;
+                }
                 divider *= 10;
             }
             else if (isE(c))
@@ -1068,10 +1142,11 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_hadWarnings = true, m_traceLevel >= Warning)
+                if (ShouldWarn())
                 {
                     fprintf(stderr,
-                        "WARNING: the exponent symbol is followed by an unexpected character('%c')"
+                        "WARNING: encountered an exponent symbol followed by"
+                        " an unexpected character('%c')"
                         " while reading a floating point value"
                         " at the offset = %" PRId64 "\n", c, GetFileOffset());
                 }
@@ -1087,10 +1162,11 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             }
             else
             {
-                if (m_hadWarnings = true, m_traceLevel >= Warning)
+                if (ShouldWarn())
                 {
                     fprintf(stderr,
-                        "WARNING: an exponent sign symbol is followed by an unexpected character('%c')"
+                        "WARNING: encountered an exponent sign symbol followed by"
+                        " an unexpected character('%c')"
                         " while reading a floating point value"
                         " at the offset = %" PRId64 "\n", c, GetFileOffset());
                 }
@@ -1101,7 +1177,19 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
             if (isdigit(c))
             {
                 // no state change
+                double temp = number;
                 number = number * 10 + (c - '0');
+                if (temp > number)
+                {
+                    if (ShouldWarn())
+                    {
+                        fprintf(stderr,
+                            "WARNING: detected an overflow while reading a floating point value"
+                            " at the offset = %" PRId64 "\n", GetFileOffset());
+                    }
+
+                    return false;
+                }
             }
             else
             {
@@ -1118,13 +1206,12 @@ bool TextParser<ElemType>::TryReadRealNumber(ElemType& value, size_t& bytesToRea
         --bytesToRead;
     }
 
-    if (m_hadWarnings = true, m_traceLevel >= Warning)
+    if (ShouldWarn())
     {
         fprintf(stderr,
             "WARNING: exhausted all input expected for the current sequence"
-            " while reading  a floating point value"
-            " at the offset = %" PRId64 "\n"
-            "Possibly, a trailing newline is missing.", GetFileOffset());
+            " while reading a floating point value"
+            " at the offset = %" PRId64 "\n", GetFileOffset());
     }
 
     return false;

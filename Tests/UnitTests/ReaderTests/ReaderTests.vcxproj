@@ -160,6 +160,8 @@
     <Text Include="Control\CNTKTextFormatReader\1x1_2_dense.txt" />
     <Text Include="Control\CNTKTextFormatReader\1x1_sparse.txt" />
     <Text Include="Control\CNTKTextFormatReader\blank_lines.txt" />
+    <Text Include="Control\CNTKTextFormatReader\empty_samples.txt" />
+    <Text Include="Control\CNTKTextFormatReader\ref_data_with_escape_sequences.txt" />
     <Text Include="Control\CNTKTextFormatReader\space_separated.txt" />
     <Text Include="Control\CNTKTextFormatReader\missing_trailing_newline.txt" />
     <Text Include="Control\CNTKTextFormatReader\MNIST_dense.txt" />
@@ -184,6 +186,9 @@
     <Text Include="Data\CNTKTextFormatReader\1x1_dense.txt" />
     <Text Include="Data\CNTKTextFormatReader\1x1_sparse.txt" />
     <Text Include="Data\CNTKTextFormatReader\contains_blank_lines.txt" />
+    <Text Include="Data\CNTKTextFormatReader\duplicate_inputs.txt" />
+    <Text Include="Data\CNTKTextFormatReader\empty_samples.txt" />
+    <Text Include="Data\CNTKTextFormatReader\ref_data_with_escape_sequences.txt" />
     <Text Include="Data\CNTKTextFormatReader\space_separated.txt" />
     <Text Include="Data\CNTKTextFormatReader\MNIST_dense.txt" />
     <Text Include="Data\CNTKTextFormatReader\missing_trailing_newline.txt" />

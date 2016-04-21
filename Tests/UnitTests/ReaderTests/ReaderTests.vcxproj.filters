@@ -270,6 +270,21 @@
     <Text Include="Control\CNTKTextFormatReader\blank_lines.txt">
       <Filter>Control\CNTKTextFormatReader</Filter>
     </Text>
+    <Text Include="Data\CNTKTextFormatReader\duplicate_inputs.txt">
+      <Filter>Data\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Data\CNTKTextFormatReader\empty_samples.txt">
+      <Filter>Data\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Control\CNTKTextFormatReader\empty_samples.txt">
+      <Filter>Control\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Control\CNTKTextFormatReader\ref_data_with_escape_sequences.txt">
+      <Filter>Control\CNTKTextFormatReader</Filter>
+    </Text>
+    <Text Include="Data\CNTKTextFormatReader\ref_data_with_escape_sequences.txt">
+      <Filter>Data\CNTKTextFormatReader</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Data\images\black.jpg">

@@ -478,6 +478,72 @@ BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_blank_lines_ignored)
         1);
 };
 
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_duplicate_inputs) 
+{
+    BOOST_REQUIRE_EXCEPTION(
+        HelperRunReaderTest<double>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/duplicate_inputs.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/duplicate_inputs_Output.txt",
+        "duplicate_inputs",
+        "reader",
+        1,  // epoch size
+        1,  // mb size  
+        1,  // num epochs
+        1,
+        0,
+        0,
+        1),
+        std::runtime_error,
+        [](std::runtime_error const& ex)
+    {
+        return string("Reached maximum allowed number of reader errors") == ex.what();
+    });
+};
+
+// input contains a number of empty sparse samples
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_empty_samples)
+{
+    HelperRunReaderTest<float>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/empty_samples.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/empty_samples_Output.txt",
+        "empty_samples",
+        "reader",
+        6,  // epoch size
+        6,  // mb size  
+        1,  // num epochs
+        1,
+        1,
+        0,
+        1,
+        false, // dense features
+        true, // sparse labels
+        false); // do not use shared layout
+};
+
+
+// input contains a number of empty sparse samples
+BOOST_AUTO_TEST_CASE(CNTKTextFormatReader_ref_data_with_escape_sequences)
+{
+    HelperRunReaderTest<float>(
+        testDataPath() + "/Config/CNTKTextFormatReader/edge_cases.cntk",
+        testDataPath() + "/Control/CNTKTextFormatReader/ref_data_with_escape_sequences.txt",
+        testDataPath() + "/Control/CNTKTextFormatReader/ref_data_with_escape_sequences_Output.txt",
+        "ref_data_with_escape_sequences",
+        "reader",
+        9,  // epoch size
+        9,  // mb size  
+        1,  // num epochs
+        1,
+        1,
+        0,
+        1,
+        true, // sparse features
+        false, // dense labels
+        false); // do not use shared layout
+};
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } } } }
