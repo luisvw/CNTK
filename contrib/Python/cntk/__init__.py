@@ -3,7 +3,7 @@ __version__ = '1.5'
 from .context import *
 from .graph import *
 from .objectives import *
-import ops
+from . import ops
 from .optimizer import *
 from .reader import UCIFastReader,CNTKTextFormatReader
 
