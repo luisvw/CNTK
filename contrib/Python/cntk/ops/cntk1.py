@@ -560,7 +560,7 @@ class GMMLogLikelihood(ComputationNode):
 
 
 class If(ComputationNode):
-    def __init__(self, cond, thenVal, elseVal, name='If', var_name=None):
+    def __init__(self, cond, thenVal, elseVal, name='BS.Boolean.If', var_name=None):
         super(If, self).__init__(
             params=['cond', 'thenVal', 'elseVal'], name=name, var_name=var_name)
         self.cond = cond
