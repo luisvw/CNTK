@@ -476,8 +476,8 @@ public:
     virtual void /*ComputationNode::*/ BackpropTo(const size_t inputIndex, const FrameRange& fr) override
     {
         size_t rank = DetermineElementwiseTensorRank();
-        auto gradient = GradientTensorFor(rank, fr);
-        auto input0 = Input(0)->ValueTensorFor(rank, fr.AllowBroadcast());
+        auto gradient      =                    GradientTensorFor(rank, fr);
+        auto input0        = Input(0)->            ValueTensorFor(rank, fr.AllowBroadcast());
         auto inputGradient = Input(inputIndex)->GradientTensorFor(rank, fr.AllowBroadcast());
 
         // Do we need some reductions like in same method of BinaryElementWiseNode??
