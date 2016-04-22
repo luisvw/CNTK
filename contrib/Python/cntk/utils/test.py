@@ -27,26 +27,71 @@ class ElementDivide(ComputationNode):
         self.anotherMatrix = anotherMatrix
        
 
+class Print(ComputationNode):
+    def __init__(self, value, format='', name='Print', var_name=None):
+        super(Print, self).__init__(params=['value', 'format'], name=name, var_name=var_name)
+        self.value = value
+        self.format = format
+        self.params_with_defaults = ['format']
+
+class Fail(ComputationNode):
+    def __init__(self, what, name='Fail', var_name=None):
+        super(Fail, self).__init__(params=['what'], name=name, var_name=var_name)
+        self.what = what
+        self.params_with_defaults = []
+
+class Format(ComputationNode):
+    def __init__(self, value, format, name='Format', var_name=None):
+        super(Format, self).__init__(params=['value', 'format'], name=name, var_name=var_name)
+        self.value = value
+        self.format = format
+        self.params_with_defaults = []
+
+class Replace(ComputationNode):
+    def __init__(self, s, from_, to, name='Replace', var_name=None):
+        super(Replace, self).__init__(params=['s', 'from_', 'to'], name=name, var_name=var_name)
+        self.s = s
+        self.from_ = from_
+        self.to = to
+        self.params_with_defaults = []
+
+class Substr(ComputationNode):
+    def __init__(self, s, begin, num, name='Substr', var_name=None):
+        super(Substr, self).__init__(params=['s', 'begin', 'num'], name=name, var_name=var_name)
+        self.s = s
+        self.begin = begin
+        self.num = num
+        self.params_with_defaults = []
+
+class Chr(ComputationNode):
+    def __init__(self, c, name='Chr', var_name=None):
+        super(Chr, self).__init__(params=['c'], name=name, var_name=var_name)
+        self.c = c
+        self.params_with_defaults = []
+
+class Length(ComputationNode):
+    def __init__(self, x, name='Length', var_name=None):
+        super(Length, self).__init__(params=['x'], name=name, var_name=var_name)
+        self.x = x
+        self.params_with_defaults = []
+
 class Ceil(ComputationNode):
     def __init__(self, x, name='Ceil', var_name=None):
         super(Ceil, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = []
 
 class Round(ComputationNode):
     def __init__(self, x, name='Round', var_name=None):
         super(Round, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = []
 
 class Sign(ComputationNode):
     def __init__(self, x, name='Sign', var_name=None):
         super(Sign, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = []
 
 class Min(ComputationNode):
     def __init__(self, a, b, name='Min', var_name=None):
@@ -54,7 +99,6 @@ class Min(ComputationNode):
         self.a = a
         self.b = b
         self.params_with_defaults = []
-        self.inputs = []
 
 class Max(ComputationNode):
     def __init__(self, a, b, name='Max', var_name=None):
@@ -62,14 +106,12 @@ class Max(ComputationNode):
         self.a = a
         self.b = b
         self.params_with_defaults = []
-        self.inputs = []
 
 class Fac(ComputationNode):
     def __init__(self, n, name='Fac', var_name=None):
         super(Fac, self).__init__(params=['n'], name=name, var_name=var_name)
         self.n = n
         self.params_with_defaults = []
-        self.inputs = []
 
 class IsSameObject(ComputationNode):
     def __init__(self, a, b, name='IsSameObject', var_name=None):
@@ -77,94 +119,6 @@ class IsSameObject(ComputationNode):
         self.a = a
         self.b = b
         self.params_with_defaults = []
-        self.inputs = []
-
-class LearnableParameter(ComputationNode):
-    def __init__(self, outputDim, inputDim, learningRateMultiplier=1.0, init='uniform', initValueScale=1, value=0, initFromFilePath='', initFromLiteral='', initOnCPUOnly=True, randomSeed=-1, name='LearnableParameter', var_name=None):
-        super(LearnableParameter, self).__init__(params=['outputDim', 'inputDim', 'learningRateMultiplier', 'init', 'initValueScale', 'value', 'initFromFilePath', 'initFromLiteral', 'initOnCPUOnly', 'randomSeed'], name=name, var_name=var_name)
-        self.outputDim = outputDim
-        self.inputDim = inputDim
-        self.learningRateMultiplier = learningRateMultiplier
-        self.init = init
-        self.initValueScale = initValueScale
-        self.value = value
-        self.initFromFilePath = initFromFilePath
-        self.initFromLiteral = initFromLiteral
-        self.initOnCPUOnly = initOnCPUOnly
-        self.randomSeed = randomSeed
-        self.params_with_defaults = ['learningRateMultiplier', 'init', 'initValueScale', 'value', 'initFromFilePath', 'initFromLiteral', 'initOnCPUOnly', 'randomSeed']
-        self.inputs = []
-
-class ParameterTensor(ComputationNode):
-    def __init__(self, dims, learningRateMultiplier=1.0, init='uniform', initValueScale=1, value=0, initFromFilePath='', initFromLiteral='', initOnCPUOnly=True, randomSeed=-1, name='ParameterTensor', var_name=None):
-        super(ParameterTensor, self).__init__(params=['dims', 'learningRateMultiplier', 'init', 'initValueScale', 'value', 'initFromFilePath', 'initFromLiteral', 'initOnCPUOnly', 'randomSeed'], name=name, var_name=var_name)
-        self.dims = dims
-        self.learningRateMultiplier = learningRateMultiplier
-        self.init = init
-        self.initValueScale = initValueScale
-        self.value = value
-        self.initFromFilePath = initFromFilePath
-        self.initFromLiteral = initFromLiteral
-        self.initOnCPUOnly = initOnCPUOnly
-        self.randomSeed = randomSeed
-        self.params_with_defaults = ['learningRateMultiplier', 'init', 'initValueScale', 'value', 'initFromFilePath', 'initFromLiteral', 'initOnCPUOnly', 'randomSeed']
-        self.inputs = []
-
-class DynamicAxis(ComputationNode):
-    def __init__(self, name='DynamicAxis', var_name=None):
-        super(DynamicAxis, self).__init__(params=[], name=name, var_name=var_name)
-
-        self.params_with_defaults = []
-        self.inputs = []
-
-class Input(InputComputationNodeBase):
-    def __init__(self, dims, dynamicAxis='', tag='feature', name='Input', var_name=None):
-        super(Input, self).__init__(params=['dims', 'dynamicAxis', 'tag'], name=name, var_name=var_name)
-        self.dims = dims
-        self.dynamicAxis = dynamicAxis
-        self.tag = tag
-        self.params_with_defaults = ['dynamicAxis', 'tag']
-        self.inputs = []
-
-class SparseInput(InputComputationNodeBase):
-    def __init__(self, dims, dynamicAxis='', tag='feature', name='SparseInput', var_name=None):
-        super(SparseInput, self).__init__(params=['dims', 'dynamicAxis', 'tag'], name=name, var_name=var_name)
-        self.dims = dims
-        self.dynamicAxis = dynamicAxis
-        self.tag = tag
-        self.params_with_defaults = ['dynamicAxis', 'tag']
-        self.inputs = []
-
-class ImageInput(ImageInputComputationNodeBase):
-    def __init__(self, imageWidth, imageHeight, imageChannels, imageLayout='CHW', dynamicAxis='', tag='feature', name='ImageInput', var_name=None):
-        super(ImageInput, self).__init__(params=['imageWidth', 'imageHeight', 'imageChannels', 'imageLayout', 'dynamicAxis', 'tag'], name=name, var_name=var_name)
-        self.imageWidth = imageWidth
-        self.imageHeight = imageHeight
-        self.imageChannels = imageChannels
-        self.imageLayout = imageLayout
-        self.dynamicAxis = dynamicAxis
-        self.tag = tag
-        self.params_with_defaults = ['imageLayout', 'dynamicAxis', 'tag']
-        self.inputs = []
-
-class SparseImageInput(ImageInputComputationNodeBase):
-    def __init__(self, imageWidth, imageHeight, imageChannels, imageLayout='CHW', dynamicAxis='', tag='feature', name='SparseImageInput', var_name=None):
-        super(SparseImageInput, self).__init__(params=['imageWidth', 'imageHeight', 'imageChannels', 'imageLayout', 'dynamicAxis', 'tag'], name=name, var_name=var_name)
-        self.imageWidth = imageWidth
-        self.imageHeight = imageHeight
-        self.imageChannels = imageChannels
-        self.imageLayout = imageLayout
-        self.dynamicAxis = dynamicAxis
-        self.tag = tag
-        self.params_with_defaults = ['imageLayout', 'dynamicAxis', 'tag']
-        self.inputs = []
-
-class EnvironmentInput(ComputationNode):
-    def __init__(self, propertyName, name='EnvironmentInput', var_name=None):
-        super(EnvironmentInput, self).__init__(params=['propertyName'], name=name, var_name=var_name)
-        self.propertyName = propertyName
-        self.params_with_defaults = []
-        self.inputs = []
 
 class PastValue(ComputationNode):
     def __init__(self, dims, input, timeStep=1, defaultHiddenActivation=0.1, name='PastValue', var_name=None):
@@ -174,7 +128,6 @@ class PastValue(ComputationNode):
         self.timeStep = timeStep
         self.defaultHiddenActivation = defaultHiddenActivation
         self.params_with_defaults = ['timeStep', 'defaultHiddenActivation']
-        self.inputs = ['input']
 
 class FutureValue(ComputationNode):
     def __init__(self, dims, input, timeStep=1, defaultHiddenActivation=0.1, name='FutureValue', var_name=None):
@@ -184,7 +137,6 @@ class FutureValue(ComputationNode):
         self.timeStep = timeStep
         self.defaultHiddenActivation = defaultHiddenActivation
         self.params_with_defaults = ['timeStep', 'defaultHiddenActivation']
-        self.inputs = ['input']
 
 class Shift(ComputationNode):
     def __init__(self, input, fromOffset, boundaryValue, boundaryMode=-1, dim=-1, name='Shift', var_name=None):
@@ -195,7 +147,6 @@ class Shift(ComputationNode):
         self.boundaryMode = boundaryMode
         self.dim = dim
         self.params_with_defaults = ['boundaryMode', 'dim']
-        self.inputs = ['input', 'boundaryValue']
 
 class RowRepeat(ComputationNode):
     def __init__(self, input, numRepeats, name='RowRepeat', var_name=None):
@@ -203,14 +154,6 @@ class RowRepeat(ComputationNode):
         self.input = input
         self.numRepeats = numRepeats
         self.params_with_defaults = []
-        self.inputs = ['input']
-
-class RowStack(ComputationNode):
-    def __init__(self, inputs, name='RowStack', var_name=None):
-        super(RowStack, self).__init__(params=['inputs'], name=name, var_name=var_name)
-        self.inputs = inputs
-        self.params_with_defaults = []
-        self.inputs = []
 
 class Reshape(ComputationNode):
     def __init__(self, input, numRows, imageWidth=0, imageHeight=0, imageChannels=0, name='Reshape', var_name=None):
@@ -221,7 +164,6 @@ class Reshape(ComputationNode):
         self.imageHeight = imageHeight
         self.imageChannels = imageChannels
         self.params_with_defaults = ['imageWidth', 'imageHeight', 'imageChannels']
-        self.inputs = ['input']
 
 class NewReshape(ComputationNode):
     def __init__(self, input, dims, beginAxis=0, endAxis=0, name='NewReshape', var_name=None):
@@ -231,7 +173,6 @@ class NewReshape(ComputationNode):
         self.beginAxis = beginAxis
         self.endAxis = endAxis
         self.params_with_defaults = ['beginAxis', 'endAxis']
-        self.inputs = ['input']
 
 class TransposeDimensions(ComputationNode):
     def __init__(self, input, axis1, axis2, name='TransposeDimensions', var_name=None):
@@ -240,7 +181,6 @@ class TransposeDimensions(ComputationNode):
         self.axis1 = axis1
         self.axis2 = axis2
         self.params_with_defaults = []
-        self.inputs = ['input']
 
 class Times(ComputationNode):
     def __init__(self, A, B, outputRank=1, name='Times', var_name=None):
@@ -249,7 +189,6 @@ class Times(ComputationNode):
         self.B = B
         self.outputRank = outputRank
         self.params_with_defaults = ['outputRank']
-        self.inputs = ['A', 'B']
 
 class Logistic(ComputationNode):
     def __init__(self, label, probability, name='Logistic', var_name=None):
@@ -257,7 +196,6 @@ class Logistic(ComputationNode):
         self.label = label
         self.probability = probability
         self.params_with_defaults = []
-        self.inputs = ['label', 'probability']
 
 class WeightedLogistic(ComputationNode):
     def __init__(self, label, probability, instanceWeight, name='WeightedLogistic', var_name=None):
@@ -266,7 +204,6 @@ class WeightedLogistic(ComputationNode):
         self.probability = probability
         self.instanceWeight = instanceWeight
         self.params_with_defaults = []
-        self.inputs = ['label', 'probability', 'instanceWeight']
 
 class ReconcileDynamicAxis(ComputationNode):
     def __init__(self, dataInput, layoutInput, name='ReconcileDynamicAxis', var_name=None):
@@ -274,7 +211,6 @@ class ReconcileDynamicAxis(ComputationNode):
         self.dataInput = dataInput
         self.layoutInput = layoutInput
         self.params_with_defaults = []
-        self.inputs = ['dataInput', 'layoutInput']
 
 class Convolution(ComputationNode):
     def __init__(self, weightNode, inputValueNode, kernelDims, mapDims=1, stride=1, sharing=True, autoPadding=True, lowerPad=0, upperPad=0, imageLayout='CHW', maxTempMemSizeInSamples=0, name='Convolution', var_name=None):
@@ -291,7 +227,6 @@ class Convolution(ComputationNode):
         self.imageLayout = imageLayout
         self.maxTempMemSizeInSamples = maxTempMemSizeInSamples
         self.params_with_defaults = ['mapDims', 'stride', 'sharing', 'autoPadding', 'lowerPad', 'upperPad', 'imageLayout', 'maxTempMemSizeInSamples']
-        self.inputs = ['weightNode', 'inputValueNode']
 
 class Pooling(ComputationNode):
     def __init__(self, input, poolKind, kernelDims, stride=1, autoPadding=True, lowerPad=0, upperPad=0, imageLayout='CHW', name='Pooling', var_name=None):
@@ -305,7 +240,6 @@ class Pooling(ComputationNode):
         self.upperPad = upperPad
         self.imageLayout = imageLayout
         self.params_with_defaults = ['stride', 'autoPadding', 'lowerPad', 'upperPad', 'imageLayout']
-        self.inputs = ['input']
 
 class MaxPooling(ComputationNode):
     def __init__(self, input, windowWidth, windowHeight, horizontalSubsample, verticalSubsample, imageLayout='CHW', name='MaxPooling', var_name=None):
@@ -317,7 +251,6 @@ class MaxPooling(ComputationNode):
         self.verticalSubsample = verticalSubsample
         self.imageLayout = imageLayout
         self.params_with_defaults = ['imageLayout']
-        self.inputs = ['input']
 
 class AveragePooling(ComputationNode):
     def __init__(self, input, windowWidth, windowHeight, horizontalSubsample, verticalSubsample, imageLayout='CHW', name='AveragePooling', var_name=None):
@@ -329,7 +262,6 @@ class AveragePooling(ComputationNode):
         self.verticalSubsample = verticalSubsample
         self.imageLayout = imageLayout
         self.params_with_defaults = ['imageLayout']
-        self.inputs = ['input']
 
 class BatchNormalization(ComputationNode):
     def __init__(self, input, scale, bias, runMean, runInvStdDev, spatial, normalizationTimeConstant=0, blendTimeConstant=0, epsilon=1e-05, useCntkEngine=True, imageLayout='CHW', name='BatchNormalization', var_name=None):
@@ -346,14 +278,12 @@ class BatchNormalization(ComputationNode):
         self.useCntkEngine = useCntkEngine
         self.imageLayout = imageLayout
         self.params_with_defaults = ['normalizationTimeConstant', 'blendTimeConstant', 'epsilon', 'useCntkEngine', 'imageLayout']
-        self.inputs = ['input', 'scale', 'bias', 'runMean', 'runInvStdDev']
 
 class Abs(ComputationNode):
     def __init__(self, x, name='Abs', var_name=None):
         super(Abs, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = ['x']
 
 class ClassBasedCrossEntropyWithSoftmax(ComputationNode):
     def __init__(self, labelClassDescriptorVectorSequence, mainInputInfo, mainWeight, classLogProbsBeforeSoftmax, name='ClassBasedCrossEntropyWithSoftmax', var_name=None):
@@ -363,7 +293,6 @@ class ClassBasedCrossEntropyWithSoftmax(ComputationNode):
         self.mainWeight = mainWeight
         self.classLogProbsBeforeSoftmax = classLogProbsBeforeSoftmax
         self.params_with_defaults = []
-        self.inputs = ['labelClassDescriptorVectorSequence', 'mainInputInfo', 'mainWeight', 'classLogProbsBeforeSoftmax']
 
 class ColumnElementTimes(ComputationNode):
     def __init__(self, aVectorSequence, anotherVectorSequence, name='ColumnElementTimes', var_name=None):
@@ -371,7 +300,6 @@ class ColumnElementTimes(ComputationNode):
         self.aVectorSequence = aVectorSequence
         self.anotherVectorSequence = anotherVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['aVectorSequence', 'anotherVectorSequence']
 
 class CosDistance(ComputationNode):
     def __init__(self, aVectorSequence, anotherVectorSequence, name='CosDistance', var_name=None):
@@ -379,7 +307,6 @@ class CosDistance(ComputationNode):
         self.aVectorSequence = aVectorSequence
         self.anotherVectorSequence = anotherVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['aVectorSequence', 'anotherVectorSequence']
 
 class CosDistanceWithNegativeSamples(ComputationNode):
     def __init__(self, aVectorSequence, anotherVectorSequence, numShifts, numNegSamples, name='CosDistanceWithNegativeSamples', var_name=None):
@@ -389,14 +316,12 @@ class CosDistanceWithNegativeSamples(ComputationNode):
         self.numShifts = numShifts
         self.numNegSamples = numNegSamples
         self.params_with_defaults = []
-        self.inputs = ['aVectorSequence', 'anotherVectorSequence', 'numShifts', 'numNegSamples']
 
 class Cosine(ComputationNode):
     def __init__(self, x, name='Cosine', var_name=None):
         super(Cosine, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = ['x']
 
 class CrossEntropy(ComputationNode):
     def __init__(self, refProbVectorSequence, outProbVectorSequence, name='CrossEntropy', var_name=None):
@@ -404,7 +329,6 @@ class CrossEntropy(ComputationNode):
         self.refProbVectorSequence = refProbVectorSequence
         self.outProbVectorSequence = outProbVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['refProbVectorSequence', 'outProbVectorSequence']
 
 class CrossEntropyWithSoftmax(ComputationNode):
     def __init__(self, labelVectorSequence, outProbVectorSequence, name='CrossEntropyWithSoftmax', var_name=None):
@@ -412,7 +336,6 @@ class CrossEntropyWithSoftmax(ComputationNode):
         self.labelVectorSequence = labelVectorSequence
         self.outProbVectorSequence = outProbVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['labelVectorSequence', 'outProbVectorSequence']
 
 class DiagTimes(ComputationNode):
     def __init__(self, diagonalMatrixAsColumnVector, matrix, name='DiagTimes', var_name=None):
@@ -420,14 +343,12 @@ class DiagTimes(ComputationNode):
         self.diagonalMatrixAsColumnVector = diagonalMatrixAsColumnVector
         self.matrix = matrix
         self.params_with_defaults = []
-        self.inputs = ['diagonalMatrixAsColumnVector', 'matrix']
 
 class Dropout(ComputationNode):
     def __init__(self, activationVectorSequence, name='Dropout', var_name=None):
         super(Dropout, self).__init__(params=['activationVectorSequence'], name=name, var_name=var_name)
         self.activationVectorSequence = activationVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['activationVectorSequence']
 
 class ElementTimes(ComputationNode):
     def __init__(self, aMatrix, anotherMatrix, name='ElementTimes', var_name=None):
@@ -435,7 +356,6 @@ class ElementTimes(ComputationNode):
         self.aMatrix = aMatrix
         self.anotherMatrix = anotherMatrix
         self.params_with_defaults = []
-        self.inputs = ['aMatrix', 'anotherMatrix']
 
 class ErrorPrediction(ComputationNode):
     def __init__(self, labelVectorSequence, outVectorSequence, name='ErrorPrediction', var_name=None):
@@ -443,14 +363,12 @@ class ErrorPrediction(ComputationNode):
         self.labelVectorSequence = labelVectorSequence
         self.outVectorSequence = outVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['labelVectorSequence', 'outVectorSequence']
 
 class Exp(ComputationNode):
     def __init__(self, x, name='Exp', var_name=None):
         super(Exp, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = ['x']
 
 class GatherPacked(ComputationNode):
     def __init__(self, indexSequence, sourceData, name='GatherPacked', var_name=None):
@@ -458,7 +376,6 @@ class GatherPacked(ComputationNode):
         self.indexSequence = indexSequence
         self.sourceData = sourceData
         self.params_with_defaults = []
-        self.inputs = ['indexSequence', 'sourceData']
 
 class GMMLogLikelihood(ComputationNode):
     def __init__(self, unnormalizedPriorVector, meansAsRows, logStdDevAsRows, dataVectorSequence, name='GMMLogLikelihood', var_name=None):
@@ -468,14 +385,12 @@ class GMMLogLikelihood(ComputationNode):
         self.logStdDevAsRows = logStdDevAsRows
         self.dataVectorSequence = dataVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['unnormalizedPriorVector', 'meansAsRows', 'logStdDevAsRows', 'dataVectorSequence']
 
 class InvStdDev(ComputationNode):
     def __init__(self, dataVectorSequence, name='InvStdDev', var_name=None):
         super(InvStdDev, self).__init__(params=['dataVectorSequence'], name=name, var_name=var_name)
         self.dataVectorSequence = dataVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['dataVectorSequence']
 
 class KhatriRaoProduct(ComputationNode):
     def __init__(self, leftMatrix, rightMatrix, name='KhatriRaoProduct', var_name=None):
@@ -483,14 +398,12 @@ class KhatriRaoProduct(ComputationNode):
         self.leftMatrix = leftMatrix
         self.rightMatrix = rightMatrix
         self.params_with_defaults = []
-        self.inputs = ['leftMatrix', 'rightMatrix']
 
 class Log(ComputationNode):
     def __init__(self, x, name='Log', var_name=None):
         super(Log, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = ['x']
 
 class LogPlus(ComputationNode):
     def __init__(self, leftMatrix, rightMatrix, name='LogPlus', var_name=None):
@@ -498,35 +411,30 @@ class LogPlus(ComputationNode):
         self.leftMatrix = leftMatrix
         self.rightMatrix = rightMatrix
         self.params_with_defaults = []
-        self.inputs = ['leftMatrix', 'rightMatrix']
 
 class LogSoftmax(ComputationNode):
     def __init__(self, z, name='LogSoftmax', var_name=None):
         super(LogSoftmax, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class MatrixL1Reg(ComputationNode):
     def __init__(self, matrix, name='MatrixL1Reg', var_name=None):
         super(MatrixL1Reg, self).__init__(params=['matrix'], name=name, var_name=var_name)
         self.matrix = matrix
         self.params_with_defaults = []
-        self.inputs = ['matrix']
 
 class MatrixL2Reg(ComputationNode):
     def __init__(self, matrix, name='MatrixL2Reg', var_name=None):
         super(MatrixL2Reg, self).__init__(params=['matrix'], name=name, var_name=var_name)
         self.matrix = matrix
         self.params_with_defaults = []
-        self.inputs = ['matrix']
 
 class Mean(ComputationNode):
     def __init__(self, dataVectorSequence, name='Mean', var_name=None):
         super(Mean, self).__init__(params=['dataVectorSequence'], name=name, var_name=var_name)
         self.dataVectorSequence = dataVectorSequence
         self.params_with_defaults = []
-        self.inputs = ['dataVectorSequence']
 
 class Minus(ComputationNode):
     def __init__(self, leftMatrix, rightMatrix, name='Minus', var_name=None):
@@ -534,14 +442,12 @@ class Minus(ComputationNode):
         self.leftMatrix = leftMatrix
         self.rightMatrix = rightMatrix
         self.params_with_defaults = []
-        self.inputs = ['leftMatrix', 'rightMatrix']
 
 class Negate(ComputationNode):
     def __init__(self, input, name='Negate', var_name=None):
         super(Negate, self).__init__(params=['input'], name=name, var_name=var_name)
         self.input = input
         self.params_with_defaults = []
-        self.inputs = ['input']
 
 class PackedIndex(ComputationNode):
     def __init__(self, targetObject, indexSequence, name='PackedIndex', var_name=None):
@@ -549,14 +455,12 @@ class PackedIndex(ComputationNode):
         self.targetObject = targetObject
         self.indexSequence = indexSequence
         self.params_with_defaults = []
-        self.inputs = ['targetObject', 'indexSequence']
 
 class Pass(ComputationNode):
     def __init__(self, x, name='Pass', var_name=None):
         super(Pass, self).__init__(params=['x'], name=name, var_name=var_name)
         self.x = x
         self.params_with_defaults = []
-        self.inputs = ['x']
 
 class PerDimMeanVarDeNormalization(ComputationNode):
     def __init__(self, dataVectorSequence, meanVector, invStdDevVector, name='PerDimMeanVarDeNormalization', var_name=None):
@@ -565,7 +469,6 @@ class PerDimMeanVarDeNormalization(ComputationNode):
         self.meanVector = meanVector
         self.invStdDevVector = invStdDevVector
         self.params_with_defaults = []
-        self.inputs = ['dataVectorSequence', 'meanVector', 'invStdDevVector']
 
 class PerDimMeanVarNormalization(ComputationNode):
     def __init__(self, dataVectorSequence, meanVector, invStdDevVector, name='PerDimMeanVarNormalization', var_name=None):
@@ -574,7 +477,6 @@ class PerDimMeanVarNormalization(ComputationNode):
         self.meanVector = meanVector
         self.invStdDevVector = invStdDevVector
         self.params_with_defaults = []
-        self.inputs = ['dataVectorSequence', 'meanVector', 'invStdDevVector']
 
 class Plus(ComputationNode):
     def __init__(self, leftMatrix, rightMatrix, name='Plus', var_name=None):
@@ -582,21 +484,18 @@ class Plus(ComputationNode):
         self.leftMatrix = leftMatrix
         self.rightMatrix = rightMatrix
         self.params_with_defaults = []
-        self.inputs = ['leftMatrix', 'rightMatrix']
 
 class Reciprocal(ComputationNode):
     def __init__(self, z, name='Reciprocal', var_name=None):
         super(Reciprocal, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class RectifiedLinear(ComputationNode):
     def __init__(self, z, name='RectifiedLinear', var_name=None):
         super(RectifiedLinear, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class Scale(ComputationNode):
     def __init__(self, scalarScalingFactor, matrix, name='Scale', var_name=None):
@@ -604,7 +503,6 @@ class Scale(ComputationNode):
         self.scalarScalingFactor = scalarScalingFactor
         self.matrix = matrix
         self.params_with_defaults = []
-        self.inputs = ['scalarScalingFactor', 'matrix']
 
 class ScatterPacked(ComputationNode):
     def __init__(self, cond, indexSequence, sourceData, name='ScatterPacked', var_name=None):
@@ -613,42 +511,36 @@ class ScatterPacked(ComputationNode):
         self.indexSequence = indexSequence
         self.sourceData = sourceData
         self.params_with_defaults = []
-        self.inputs = ['cond', 'indexSequence', 'sourceData']
 
 class Sigmoid(ComputationNode):
     def __init__(self, z, name='Sigmoid', var_name=None):
         super(Sigmoid, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class Sin(ComputationNode):
     def __init__(self, z, name='Sin', var_name=None):
         super(Sin, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class Softmax(ComputationNode):
     def __init__(self, z, name='Softmax', var_name=None):
         super(Softmax, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class Hardmax(ComputationNode):
     def __init__(self, z, name='Hardmax', var_name=None):
         super(Hardmax, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class Sqrt(ComputationNode):
     def __init__(self, z, name='Sqrt', var_name=None):
         super(Sqrt, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class SquareError(ComputationNode):
     def __init__(self, aMatrix, anotherMatrix, name='SquareError', var_name=None):
@@ -656,35 +548,30 @@ class SquareError(ComputationNode):
         self.aMatrix = aMatrix
         self.anotherMatrix = anotherMatrix
         self.params_with_defaults = []
-        self.inputs = ['aMatrix', 'anotherMatrix']
 
 class SumColumnElements(ComputationNode):
     def __init__(self, z, name='SumColumnElements', var_name=None):
         super(SumColumnElements, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class SumElements(ComputationNode):
     def __init__(self, matrix, name='SumElements', var_name=None):
         super(SumElements, self).__init__(params=['matrix'], name=name, var_name=var_name)
         self.matrix = matrix
         self.params_with_defaults = []
-        self.inputs = ['matrix']
 
 class Tanh(ComputationNode):
     def __init__(self, z, name='Tanh', var_name=None):
         super(Tanh, self).__init__(params=['z'], name=name, var_name=var_name)
         self.z = z
         self.params_with_defaults = []
-        self.inputs = ['z']
 
 class TimeReverse(ComputationNode):
     def __init__(self, vectorSequence, name='TimeReverse', var_name=None):
         super(TimeReverse, self).__init__(params=['vectorSequence'], name=name, var_name=var_name)
         self.vectorSequence = vectorSequence
         self.params_with_defaults = []
-        self.inputs = ['vectorSequence']
 
 class TransposeTimes(ComputationNode):
     def __init__(self, leftMatrix, rightMatrix, name='TransposeTimes', var_name=None):
@@ -692,14 +579,12 @@ class TransposeTimes(ComputationNode):
         self.leftMatrix = leftMatrix
         self.rightMatrix = rightMatrix
         self.params_with_defaults = []
-        self.inputs = ['leftMatrix', 'rightMatrix']
 
 class Where(ComputationNode):
     def __init__(self, cond, name='Where', var_name=None):
         super(Where, self).__init__(params=['cond'], name=name, var_name=var_name)
         self.cond = cond
         self.params_with_defaults = []
-        self.inputs = ['cond']
 
 Parameter = LearnableParameter
 ReconcileMBLayout = ReconcileDynamicAxis
@@ -711,6 +596,12 @@ class ConstantTensor(ParameterTensor):
         super(ConstantTensor, self).__init__(dims, learningRateMultiplier=0, init='fixedValue', value=value, name=name, var_name=var_name)
         self.params=['value', 'dims']
         self.params_with_defaults = []
+
+class Constant(Parameter):
+    def __init__(self, value, rows=1, cols=1,  name='Constant', var_name=None):
+        super(Constant, self).__init__(rows, cols, learningRateMultiplier=0, init='fixedValue', value=value, name=name, var_name=var_name)
+        self.params=['value', 'rows', 'cols']
+        self.params_with_defaults = ['rows', 'cols']
 
 class RowSlice(Slice):
     def __init__(self, beginIndex, numRows, input,  name='RowSlice', var_name=None):
