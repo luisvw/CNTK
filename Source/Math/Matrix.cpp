@@ -1198,7 +1198,43 @@ void Matrix<ElemType>::SetColumn(const Matrix<ElemType>& colMat, size_t colInd)
 }
 
 template <class ElemType>
-void Matrix<ElemType>::SetValue(const Matrix<ElemType>& deepCopyFrom, const MatrixFormat format /*= matrixFormatSparseCSR*/)
+void Matrix<ElemType>::AssignDeepClone_OrValues_Of(const Matrix<ElemType>& deepCopyFrom, const MatrixFormat format = matrixFormatSparseCSR)
+{
+    if (this == &deepCopyFrom)
+        return;
+
+    m_preferredDeviceId = deepCopyFrom.m_preferredDeviceId;
+    DecideAndMoveToRightDevice(deepCopyFrom, *this);
+    SwitchToMatrixType(deepCopyFrom.GetMatrixType(), format, false);
+
+    DISPATCH_MATRIX_ON_FLAG(&deepCopyFrom,
+                            this,
+                            m_CPUMatrix->SetValue(*deepCopyFrom.m_CPUMatrix),
+                            m_GPUMatrix->SetValue(*deepCopyFrom.m_GPUMatrix),
+                            m_CPUSparseMatrix->SetValue(*deepCopyFrom.m_CPUSparseMatrix),
+                            m_GPUSparseMatrix->SetValue(*deepCopyFrom.m_GPUSparseMatrix));
+}
+
+template <class ElemType>
+void Matrix<ElemType>::AssignDeepCloneOf(const Matrix<ElemType>& deepCopyFrom, const MatrixFormat format /*= matrixFormatSparseCSR*/)
+{
+    if (this == &deepCopyFrom)
+        return;
+
+    m_preferredDeviceId = deepCopyFrom.m_preferredDeviceId;
+    DecideAndMoveToRightDevice(deepCopyFrom, *this);
+    SwitchToMatrixType(deepCopyFrom.GetMatrixType(), format, false);
+
+    DISPATCH_MATRIX_ON_FLAG(&deepCopyFrom,
+                            this,
+                            m_CPUMatrix->SetValue(*deepCopyFrom.m_CPUMatrix),
+                            m_GPUMatrix->SetValue(*deepCopyFrom.m_GPUMatrix),
+                            m_CPUSparseMatrix->SetValue(*deepCopyFrom.m_CPUSparseMatrix),
+                            m_GPUSparseMatrix->SetValue(*deepCopyFrom.m_GPUSparseMatrix));
+}
+
+template <class ElemType>
+void Matrix<ElemType>::AssignValuesOf(const Matrix<ElemType>& deepCopyFrom, const MatrixFormat format /*= matrixFormatSparseCSR*/)
 {
     if (this == &deepCopyFrom)
         return;
@@ -1418,7 +1454,7 @@ void Matrix<ElemType>::NormalGrad(Matrix<ElemType>& gradients,
                                   if (momentum != 0)
                                   {
                                       Matrix<ElemType> gradientCache(gradients.GetDeviceId());
-                                      gradientCache.SetValue(gradients);
+                                      gradientCache.AssignValuesOf(gradients);
                                       gradients.m_CPUSparseMatrix->NormalGrad(*m_CPUMatrix, momentum);
                                       ScaleAndAdd(-momentum, *this, functionValues);
                                       ScaleAndAdd(-(1 - momentum) * learnRatePerSample, gradientCache, functionValues);
@@ -1428,7 +1464,7 @@ void Matrix<ElemType>::NormalGrad(Matrix<ElemType>& gradients,
                                   if (momentum != 0)
                                   {
                                       Matrix<ElemType> gradientCache(gradients.GetDeviceId());
-                                      gradientCache.SetValue(gradients);
+                                      gradientCache.AssignValuesOf(gradients);
                                       gradients.m_GPUSparseMatrix->NormalGrad(*m_GPUMatrix, momentum);
                                       ScaleAndAdd(-momentum, *this, functionValues);
                                       ScaleAndAdd(-(1 - momentum) * learnRatePerSample, gradientCache, functionValues);
@@ -1534,7 +1570,7 @@ Matrix<ElemType> Matrix<ElemType>::RepMat(const Matrix<ElemType>& frmMat, const 
     Matrix<ElemType> c(nRows, newCols, frmMat.GetDeviceId());
     for (size_t i = 0; i < colRatio; i++)
     {
-        c.ColumnSlice(i * nCols, nCols).SetValue(frmMat);
+        c.ColumnSlice(i * nCols, nCols).AssignValuesOf(frmMat);
     }
 
     return c;
@@ -1683,12 +1719,12 @@ Matrix<ElemType>& Matrix<ElemType>::AssignSumOf(const Matrix<ElemType>& a, const
 {
     if (a.GetNumElements() == 1)
     {
-        SetValue(b);
+        AssignDeepCloneOf(b);
         (*this) += a;
     }
     else
     {
-        SetValue(a);
+        AssignDeepCloneOf(a);
         (*this) += b;
     }
     return *this;
@@ -1950,7 +1986,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignDifferenceOf(const Matrix<ElemType>& a
         return *this;
     }
     if (this != &a)
-        SetValue(a);
+        AssignDeepCloneOf(a);
     (*this) -= b;
     return *this;
 }
@@ -1986,7 +2022,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignProductOf(const Matrix<ElemType>& a, c
         if (transposeB)
             AssignTransposeOf(b);
         else
-            this->SetValue(b);
+            this->AssignDeepCloneOf(b);
 
         DISPATCH_MATRIX_ON_FLAG(this,
                                 nullptr,
@@ -2000,7 +2036,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignProductOf(const Matrix<ElemType>& a, c
         if (transposeA)
             AssignTransposeOf(a);
         else
-            this->SetValue(a);
+            this->AssignDeepCloneOf(a);
 
         DISPATCH_MATRIX_ON_FLAG(this,
                                 nullptr,
@@ -2861,7 +2897,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignTruncateBottomOf(const Matrix<ElemType
     {
         if (!isfinite((float) threshold))
         {
-            this->SetValue(a);
+            this->AssignDeepCloneOf(a);
             return *this;
         }
     }
@@ -2869,7 +2905,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignTruncateBottomOf(const Matrix<ElemType
     {
         if (!isfinite(threshold))
         {
-            this->SetValue(a);
+            this->AssignDeepCloneOf(a);
             return *this;
         }
     }
@@ -2925,7 +2961,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignTruncateTopOf(const Matrix<ElemType>& 
     {
         if (!isfinite((float) threshold))
         {
-            this->SetValue(a);
+            this->AssignDeepCloneOf(a);
             return *this;
         }
     }
@@ -2933,7 +2969,7 @@ Matrix<ElemType>& Matrix<ElemType>::AssignTruncateTopOf(const Matrix<ElemType>& 
     {
         if (!isfinite(threshold))
         {
-            this->SetValue(a);
+            this->AssignDeepCloneOf(a);
             return *this;
         }
     }
@@ -4998,9 +5034,9 @@ Matrix<ElemType>& Matrix<ElemType>::Shift(const Matrix<ElemType>& a, int shift)
     long n = (long) GetNumCols();
 
     if (shift >= 0 && shift < n)
-        us.ColumnSlice(shift, n - shift).SetValue(a.ColumnSlice(0, n - shift));
+        us.ColumnSlice(shift, n - shift).AssignValuesOf(a.ColumnSlice(0, n - shift));
     if (shift < 0 && shift > -n)
-        us.ColumnSlice(0, n + shift).SetValue(a.ColumnSlice(-shift, n + shift));
+        us.ColumnSlice(0, n + shift).AssignValuesOf(a.ColumnSlice(-shift, n + shift));
     return *this;
 }
 
@@ -5319,7 +5355,9 @@ template size_t Matrix<char>::GetNumRows() const;
 template size_t Matrix<char>::GetNumCols() const;
 template void Matrix<char>::SetValue(const char);
 template void Matrix<char>::SetValue(size_t numRows, const size_t numCols, int deviceId, char* pArray, size_t matrixFlags);
-template void Matrix<char>::SetValue(const Matrix<char>&, MatrixFormat);
+//template void Matrix<char>::SetValue(const Matrix<char>&, MatrixFormat);
+template void Matrix<char>::AssignDeepCloneOf(const Matrix<char>&, const MatrixFormat);
+template void Matrix<char>::AssignValuesOf   (const Matrix<char>&, const MatrixFormat);
 template bool Matrix<char>::IsEmpty() const;
 template void Matrix<char>::Resize(const size_t numRows, const size_t numCols, const size_t numNZElemToReserve, bool growOnly);
 
