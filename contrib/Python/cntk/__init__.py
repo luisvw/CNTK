@@ -6,4 +6,4 @@ from .objectives import *
 from . import ops
 from .optimizer import *
 from .reader import UCIFastReader,CNTKTextFormatReader
-
+from .ops.variables_and_parameters import *
