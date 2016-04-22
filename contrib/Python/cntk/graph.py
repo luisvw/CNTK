@@ -595,7 +595,7 @@ def eval(node):
         >>> print (cntk.eval(cntk.ops.element_times([[-30.,40.], [1.,2.]], 5)))
         #   [array([[[-150., 200.], [5., 10.]]])]        
     Args:
-        node: the node to evaluate        
+        node (cntk.graph.ComputationNode): the node to evaluate        
     Returns:
         numpy array containing the result
     """    
